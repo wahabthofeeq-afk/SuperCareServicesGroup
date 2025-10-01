@@ -1,0 +1,152 @@
+﻿@{
+    Layout = null;
+
+    // Determine logged-in user type and name
+    string customerName = Session["CustomerName"] != null ? Session["CustomerName"].ToString() : null;
+    string employeeName = Session["EmployeeName"] != null ? Session["EmployeeName"].ToString() : null;
+    string managerName = Session["ManagerName"] != null ? Session["ManagerName"].ToString() : null;
+
+    string loggedInName = customerName ?? employeeName ?? managerName; // whichever is not null
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - SuperCare Services</title>
+    <link href="~/Content/Site.css" rel="stylesheet" />
+
+    <style>
+        /* Reset */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f9f9f9;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #007bff;
+            padding: 12px 20px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+        }
+
+            .navbar .brand {
+                color: white;
+                font-size: 20px;
+                font-weight: bold;
+                text-decoration: none;
+            }
+
+            .navbar .nav-links {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding-right: 10px;
+                flex-wrap: wrap;
+            }
+
+            .navbar span {
+                color: white;
+                font-weight: bold;
+                white-space: nowrap;
+            }
+
+            .navbar a {
+                padding: 6px 14px;
+                border-radius: 4px;
+                text-decoration: none;
+                font-weight: bold;
+                transition: background 0.3s ease, color 0.3s ease;
+                white-space: nowrap;
+            }
+
+                /* Login/Register links */
+                .navbar a.default-link {
+                    background: white;
+                    color: #007bff;
+                }
+
+                    .navbar a.default-link:hover {
+                        background: #dbeafe;
+                        color: #0056b3;
+                    }
+
+                /* Logout link styled as red button */
+                .navbar a.logout-link {
+                    background: #dc3545;
+                    color: white;
+                }
+
+                    .navbar a.logout-link:hover {
+                        background: #b02a37;
+                        color: white;
+                    }
+
+        /* Page content */
+        .body-content {
+            margin-top: 80px;
+            padding: 20px;
+            min-height: 80vh;
+        }
+
+        footer {
+            text-align: center;
+            color: #666;
+            margin: 40px 0 20px;
+        }
+
+        /* Responsive: reduce navbar font on very small screens */
+
+        @@media (max-width: 480px) {
+            .navbar .brand {
+                font-size: 16px;
+            }
+
+            .navbar a, .navbar span {
+                font-size: 14px;
+                padding: 4px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+        <a class="brand" href="@Url.Action("Index", "Home")">SuperCare Services Group</a>
+        <div class="nav-links">
+            @if (loggedInName != null)
+            {
+                <div style="display:flex; gap:6px; align-items:center; flex-wrap: wrap;">
+                    <span>Welcome, @loggedInName!</span>
+                    <a class="logout-link" href="@Url.Action("Logout", "Account")">Logout</a>
+                </div>
+            }
+            else
+            {
+                <a class="default-link" href="@Url.Action("CustomerLogin", "Account")">Login</a>
+                <a class="default-link" href="@Url.Action("CustomerRegister", "Account")">Register</a>
+            }
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="body-content">
+        @RenderBody()
+        
+
+    </div>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

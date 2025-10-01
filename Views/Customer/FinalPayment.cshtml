@@ -1,0 +1,250 @@
+﻿@model SuperCareServicesGroup.BookCleaning
+@{
+    ViewBag.Title = "FinalPayment";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Final Payment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <style>
+        body {
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .payment-card {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+            .payment-card h2 {
+                margin-bottom: 1rem;
+                text-align: center;
+                font-weight: bold;
+            }
+
+        .booking-info {
+            background: #f1f1f1;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-pay {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            border-radius: 15px;
+        }
+
+            .btn-pay i {
+                margin-right: 8px;
+            }
+
+        .lock-message {
+            text-align: center;
+            font-size: 0.9rem;
+            color: gray;
+            margin-top: 1rem;
+        }
+
+        /* Overlay */
+        #paymentOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            color: #fff;
+            font-size: 1.5rem;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 9999;
+        }
+
+            #paymentOverlay .spinner-border {
+                width: 3rem;
+                height: 3rem;
+                margin-bottom: 1rem;
+            }
+
+            #paymentOverlay .confirmation {
+                display: none;
+                text-align: center;
+            }
+
+                #paymentOverlay .confirmation button {
+                    margin-top: 1rem;
+                    padding: 0.5rem 1.5rem;
+                    font-size: 1rem;
+                }
+    </style>
+</head>
+<body>
+    <div class="payment-card">
+        <h2><i class="fas fa-credit-card"></i> Final Payment</h2>
+        <div class="booking-info">
+            <p><strong>Cleaning Type:</strong> @Model.CleaningType</p>
+            <p><strong>Location:</strong> @Model.CustomerLocation</p>
+            <p>
+                <strong>Scheduled Date:</strong>
+                @(Model.PreferredDate?.ToString("dd MMM yyyy") ?? "Not scheduled") @Model.TimeSlot
+            </p>
+
+
+
+            <p><strong>Total Outstanding:</strong> R @string.Format("{0:N2}", Model.Deposit ?? 0)</p>
+        </div>
+
+        @using (Html.BeginForm("ProcessFinalPayment", "Customer", FormMethod.Post, new { id = "depositForm" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.BookCleaningID)
+
+            <div class="mb-3">
+                <label for="cardNumber" class="form-label">Card Number</label>
+                <input type="text" id="cardNumber" name="cardNumber" class="form-control" maxlength="16" placeholder="1234 5678 9012 3456" required pattern="\d{16}" />
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Expiry Date</label>
+                    <div class="d-flex gap-2">
+                        <select id="expiryMonth" name="expiryMonth" class="form-control" required>
+                            <option value="">Month</option>
+                            @for (int m = 1; m <= 12; m++)
+                            {
+                                <option value="@m.ToString("D2")">@m.ToString("D2")</option>
+                            }
+                        </select>
+                        <select id="expiryYear" name="expiryYear" class="form-control" required>
+                            <option value="">Year</option>
+                            @for (int y = DateTime.Now.Year; y <= DateTime.Now.Year + 10; y++)
+                            {
+                                <option value="@y">@y</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="cvv" class="form-label">CVV</label>
+                    <input type="password" id="cvv" name="cvv" class="form-control" maxlength="3" placeholder="123" required pattern="\d{3,4}" />
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-pay">
+                <i class="fas fa-credit-card"></i> Confirm Payment
+            </button>
+        }
+
+        <div class="lock-message">
+            <i class="fas fa-lock"></i> This page is secure. Navigation is disabled until payment is completed.
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div id="paymentOverlay">
+        <div class="processing">
+            <div class="spinner-border text-light" role="status"></div>
+            <div id="overlayText">Processing Payment...</div>
+        </div>
+        <div class="confirmation">
+            <div><i class="fas fa-check-circle"></i> Payment Confirmed!</div>
+            <button id="overlayOkBtn" class="btn btn-light">OK</button>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById("depositForm");
+        const overlay = document.getElementById("paymentOverlay");
+        const processing = overlay.querySelector(".processing");
+        const confirmation = overlay.querySelector(".confirmation");
+        const okBtn = document.getElementById("overlayOkBtn");
+
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault(); // prevent normal submit
+
+            // Basic expiry validation
+            const month = parseInt(document.getElementById("expiryMonth").value);
+            const year = parseInt(document.getElementById("expiryYear").value);
+
+            if (!month || !year) {
+                alert("Please select a valid expiry month and year.");
+                return;
+            }
+
+            const today = new Date();
+            const selectedDate = new Date(year, month - 1, 1);
+            selectedDate.setMonth(selectedDate.getMonth() + 1); // End of expiry month
+
+            if (selectedDate <= today) {
+                alert("Expiry date must be in the future.");
+                return;
+            }
+
+            // Show spinner overlay
+            overlay.style.display = "flex";
+            processing.style.display = "flex";
+            confirmation.style.display = "none";
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                });
+
+                // Try to parse JSON (safely)
+                let result;
+                try {
+                    result = await response.json();
+                } catch (jsonError) {
+                    throw new Error("Invalid response from server.");
+                }
+
+                if (response.ok && result.success) {
+                    processing.style.display = "none";
+                    confirmation.style.display = "flex";
+
+                    // Redirect on OK button click
+                    okBtn.onclick = () => {
+                        window.location.href = result.redirectUrl;
+                    };
+                } else {
+                    processing.style.display = "none";
+                    overlay.style.display = "none";
+                    alert(result.message || "Payment failed. Please try again.");
+                }
+
+            } catch (err) {
+                processing.style.display = "none";
+                overlay.style.display = "none";
+                alert("An error occurred: " + err.message);
+            }
+        });
+    </script>
+
+
+</body>
+</html>

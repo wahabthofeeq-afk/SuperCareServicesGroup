@@ -1,0 +1,24 @@
+﻿@{
+    ViewBag.Title = "Select Role";
+}
+
+<h2>Select Role</h2>
+
+@using (Html.BeginForm("SelectRole", "Account", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    <label><input type="radio" name="role" value="Employee" /> Employee</label>
+    <br />
+    <label><input type="radio" name="role" value="Manager" /> Manager</label>
+    <br />
+    <br />
+
+    <input type="submit" value="Continue" />
+
+    @if (ViewBag.Error != null)
+    {
+        <p style="color:red">@ViewBag.Error</p>
+    }
+}
+

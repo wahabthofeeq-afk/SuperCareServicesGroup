@@ -1,0 +1,397 @@
+﻿@model SuperCareServicesGroup.Models.EmployeeLoginView
+
+
+@{
+    ViewBag.Title = "Login";
+    Layout = null; // Or "~/Views/Shared/_Layout.cshtml" if you're using a shared layout
+}
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewBag.Title - SuperCare Services</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #007bff;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+
+            .navbar .brand {
+                font-size: 1.5em;
+                font-weight: bold;
+            }
+
+            .navbar .nav-links a {
+                background-color: #f8f9fa;
+                color: #333;
+                text-decoration: none;
+                padding: 8px 16px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-weight: bold;
+                transition: background-color 0.3s;
+            }
+
+                .navbar .nav-links a:hover {
+                    background-color: #e2e6ea;
+                }
+
+        /* Main content */
+        .content {
+            max-width: 800px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        .form-control {
+            width: 300px; /* shorter text fields */
+            max-width: 100%; /* responsive on smaller screens */
+            padding: 10px;
+            box-sizing: border-box;
+            margin: 0 auto; /* center horizontally */
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: center; /* center label and input */
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+
+        .btn {
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+            .btn-primary:hover {
+                background-color: #0056b3;
+            }
+
+        .text-danger {
+            color: red;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            color: #555;
+        }
+
+        .user-select-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px; /* space between icon and text */
+            background-color: #1b4f9c; /* button background */
+            border: none;
+            border-radius: 25px; /* rounded pill shape */
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: white;
+            padding: 8px 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+            .user-select-btn .icon {
+                font-size: 20px; /* slightly larger for balance */
+            }
+
+            .user-select-btn:hover {
+                background-color: #2d6cdf; /* hover color */
+                transform: scale(1.05);
+                box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+            }
+
+            .user-select-btn:active {
+                transform: scale(0.95); /* click effect */
+            }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="brand">SuperCare Services Group</div>
+        <div class="nav-links">
+            <!-- Close button: goes back to Home -->
+            <a href="@Url.Action("Index", "Home")">Close</a>
+        </div>
+    </div>
+
+
+    <!-- Main content -->
+    <div class="content">
+        <h2>Employee Login</h2>
+        <hr />
+
+        @using (Html.BeginForm("EmployeeLogin", "Account", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.Email)
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email", required = "required", placeholder = "Email" })
+                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group password-wrapper">
+                @Html.LabelFor(m => m.Password)
+                <div style="position: relative; display: inline-block; width: 300px;">
+                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", required = "required", placeholder = "Password", id = "passwordInput" })
+                    <button type="button" class="toggle-password" onclick="togglePassword()"
+                            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+                       background: none; border: none; cursor: pointer; font-size: 14px; color:#007bff;">
+                        Show
+                    </button>
+                </div>
+                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+            </div>
+
+
+            <button type="submit" class="btn btn-primary">Login</button>
+            <a href="@Url.Action("EmployeeRegister", "Account")" class="btn btn-link">Don’t have an account? Register</a>
+
+
+
+            if (ViewBag.Error != null)
+            {
+                <div class="text-danger" style="margin-top:10px;">@ViewBag.Error</div>
+            }
+        }
+
+        <!-- Button to show change password form -->
+        <div style="text-align:center; margin-top:20px;">
+            <button type="button" class="btn btn-secondary" onclick="showChangePassword()">Change Password</button>
+        </div>
+
+        <!-- Change Password Form (centered modal style) -->
+        <div id="changePasswordForm" style="display:none;
+                                    position: fixed;
+                                    top: 50%;
+                                    left: 50%;
+                                    transform: translate(-50%, -50%);
+                                    background-color: white;
+                                    padding: 30px;
+                                    border-radius: 8px;
+                                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                                    max-width: 400px;
+                                    width: 90%;
+                                    z-index: 1000;">
+            <h3 style="text-align:center; margin-bottom:20px;">Change Password</h3>
+
+            @using (Html.BeginForm("EmployeeChangePassword", "Account", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <div style="position: relative; display: inline-block; width: 300px;">
+                        <input type="email" id="email" name="Email" class="form-control" required />
+                    </div>
+                </div>
+
+                <!-- Current Password -->
+                <div class="form-group password-wrapper">
+                    <label for="currentPassword">Current Password</label>
+                    <div style="position: relative; display: inline-block; width: 300px;">
+                        <input type="password" id="currentPassword" name="CurrentPassword" class="form-control" required />
+                        <button type="button" class="toggle-password" data-target="currentPassword"
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+                           background: none; border: none; cursor: pointer; font-size: 14px; color:#007bff;">
+                            👁
+                        </button>
+                    </div>
+                </div>
+
+                <!-- New Password -->
+                <div class="form-group password-wrapper">
+                    <label for="newPassword">New Password</label>
+                    <div style="position: relative; display: inline-block; width: 300px;">
+                        <input type="password" id="newPassword" name="NewPassword" class="form-control" required />
+                        <button type="button" class="toggle-password" data-target="newPassword"
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+                           background: none; border: none; cursor: pointer; font-size: 14px; color:#007bff;">
+                            👁
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="form-group password-wrapper">
+                    <label for="confirmPassword">Confirm New Password</label>
+                    <div style="position: relative; display: inline-block; width: 300px;">
+                        <input type="password" id="confirmPassword" name="ConfirmPassword" class="form-control" required />
+                        <button type="button" class="toggle-password" data-target="confirmPassword"
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+                           background: none; border: none; cursor: pointer; font-size: 14px; color:#007bff;">
+                            👁
+                        </button>
+                    </div>
+                </div>
+
+                <div style="text-align:center; margin-top:15px;">
+                    <button type="submit" class="btn btn-primary">Update Password</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideChangePassword()">Cancel</button>
+                </div>
+                <div id="changePasswordMsg" style="margin-top:15px; text-align:center;"></div>
+
+                if (TempData["ChangePasswordError"] != null)
+                {
+                    <div class="text-danger" style="text-align:center; margin-bottom:15px;">
+                        @TempData["ChangePasswordError"]
+                    </div>
+                }
+                if (TempData["ChangePasswordSuccess"] != null)
+                {
+                    <div class="text-success" style="text-align:center; margin-bottom:15px;">
+                        @TempData["ChangePasswordSuccess"]
+                    </div>
+                }
+
+                @Html.ValidationSummary(true, "", new { @class = "text-danger", style = "margin-bottom:15px;" })
+
+            }
+
+
+
+
+        </div>
+
+        <!-- Overlay to dim background -->
+        <div id="changePasswordOverlay" style="display:none;
+                                      position: fixed;
+                                      top: 0;
+                                      left: 0;
+                                      width: 100%;
+                                      height: 100%;
+                                      background: rgba(0,0,0,0.5);
+                                      z-index: 999;"
+             onclick="hideChangePassword()">
+        </div>
+
+
+    </div>
+
+
+    <!-- Role selection dropdown at bottom left -->
+    <div style="position: fixed; bottom: 20px; left: 20px;">
+        <div style="position: relative; display: inline-block;">
+            <!-- User icon with text -->
+            <button id="userIconBtn" class="user-select-btn">
+                <span class="icon">&#128100;</span>
+                <span class="text">Select User</span>
+            </button>
+
+
+            <!-- Dropdown menu -->
+            <div id="roleDropdown" style="display:none; position:absolute; bottom:30px; left:0; background:white; border:1px solid #ccc; border-radius:4px; box-shadow:0px 2px 6px rgba(0,0,0,0.2);">
+                @using (Html.BeginForm("SelectRole", "Account", FormMethod.Post, new { id = "roleForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="roleInput" name="role" />
+                    <a href="#" class="dropdown-item" style="display:block; padding:8px 12px; text-decoration:none; color:#333; cursor:pointer;" onclick="selectRole('Manager')">Manager</a>
+                    <a href="#" class="dropdown-item" style="display:block; padding:8px 12px; text-decoration:none; color:#333; cursor:pointer;" onclick="selectRole('Employee')">Employee</a>
+                    <a href="#" class="dropdown-item" style="display:block; padding:8px 12px; text-decoration:none; color:#333; cursor:pointer;" onclick="selectRole('Customer')">Customer</a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle dropdown on icon click
+        document.getElementById('userIconBtn').addEventListener('click', function () {
+            var dropdown = document.getElementById('roleDropdown');
+            dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
+        });
+
+        // Function to set role and submit form
+        function selectRole(role) {
+            document.getElementById('roleInput').value = role;
+            document.getElementById('roleForm').submit();
+        }
+
+        // Close dropdown if clicked outside
+        window.addEventListener('click', function (e) {
+            var dropdown = document.getElementById('roleDropdown');
+            var btn = document.getElementById('userIconBtn');
+            if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        function togglePassword() {
+            var input = document.getElementById('passwordInput');
+            var btn = input.nextElementSibling; // the toggle button
+            if (input.type === "password") {
+                input.type = "text";
+                btn.textContent = "Hide";
+            } else {
+                input.type = "password";
+                btn.textContent = "Show";
+            }
+        }
+
+
+        function showChangePassword() {
+            document.getElementById('changePasswordForm').style.display = 'block';
+            document.getElementById('changePasswordOverlay').style.display = 'block';
+        }
+
+        // ✅ Fix: hide function for Cancel button and overlay click
+        function hideChangePassword() {
+            document.getElementById('changePasswordForm').style.display = 'none';
+            document.getElementById('changePasswordOverlay').style.display = 'none';
+        }
+
+        document.querySelectorAll(".toggle-password").forEach(btn => {
+            btn.addEventListener("click", function () {
+                const targetId = this.getAttribute("data-target");
+                const input = document.getElementById(targetId);
+
+                if (input.type === "password") {
+                    input.type = "text";
+                    this.textContent = "🙈"; // hide icon
+                } else {
+                    input.type = "password";
+                    this.textContent = "👁"; // show icon
+                }
+            });
+        });
+
+
+    </script>
+
+</body>
+</html>
+
+
+

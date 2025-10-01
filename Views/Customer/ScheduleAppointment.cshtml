@@ -1,0 +1,927 @@
+﻿@model SuperCareServicesGroup.BookCleaning
+
+@{
+    ViewBag.Title = "ScheduleAppointment";
+    var userName = Session["CustomerName"];
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Appointment - SuperCare Services</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c6fbb;
+            --primary-dark: #1e5596;
+            --secondary: #ff6b6b;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-600: #6c757d;
+            --gray-800: #343a40;
+            --border-radius: 12px;
+            --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--gray-100);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* Navbar */
+        .navbar {
+            width: 100%;
+            height: 70px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 25px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1001;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+
+            .navbar .brand {
+                font-weight: bold;
+                font-size: 20px;
+                display: flex;
+                align-items: center;
+            }
+
+                .navbar .brand i {
+                    margin-right: 12px;
+                    font-size: 22px;
+                    color: #ffd166;
+                }
+
+        .menu-toggle {
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: block;
+            margin-right: 15px;
+            color: white;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 500;
+        }
+
+            .user-section .logout-btn {
+                background: white;
+                color: var(--primary);
+                padding: 8px 16px;
+                border-radius: var(--border-radius);
+                font-weight: 600;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                transition: var(--transition);
+            }
+
+                .user-section .logout-btn:hover {
+                    background: #f0f0f0;
+                    transform: translateY(-2px);
+                }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: -280px;
+            top: 70px;
+            overflow-y: auto;
+            transition: var(--transition);
+            z-index: 1000;
+            padding: 25px 0;
+            box-shadow: var(--box-shadow);
+        }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+        .sidebar-header {
+            padding: 0 25px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            margin-bottom: 20px;
+        }
+
+            .sidebar-header h3 {
+                font-weight: 600;
+                font-size: 1.3rem;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0 15px;
+        }
+
+            .sidebar-menu li {
+                margin-bottom: 8px;
+            }
+
+            .sidebar-menu a {
+                display: flex;
+                align-items: center;
+                padding: 14px 18px;
+                color: rgba(255,255,255,0.9);
+                text-decoration: none;
+                border-radius: var(--border-radius);
+                font-weight: 500;
+                margin-bottom: 5px;
+                transition: var(--transition);
+            }
+
+                .sidebar-menu a:hover {
+                    background-color: rgba(255,255,255,0.12);
+                    color: white;
+                    transform: translateX(5px);
+                }
+
+                .sidebar-menu a i {
+                    margin-right: 15px;
+                    width: 20px;
+                    text-align: center;
+                    font-size: 1.1rem;
+                }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 0;
+            padding: 30px;
+            margin-top: 70px;
+            transition: margin-left 0.3s ease;
+        }
+
+            .main-content.shift {
+                margin-left: 280px;
+            }
+
+        /* Dashboard Cards / Call Out Card */
+        .dashboard-card, .callout-card {
+            background: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            transition: var(--transition);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+            .dashboard-card:hover, .callout-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+            .card-header h2 {
+                font-size: 1.6rem;
+                color: var(--primary);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+        /* Form Groups */
+        .form-group label {
+            font-weight: 600;
+            color: var(--dark);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+            .form-group input:focus,
+            .form-group select:focus,
+            .form-group textarea:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 2px rgba(44,111,187,0.2);
+            }
+
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--primary);
+            color: #fff;
+            border-radius: var(--border-radius);
+            padding: 12px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+        }
+
+            .btn-primary:hover {
+                background-color: var(--primary-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+            }
+
+        /* Price Summary */
+        .price-summary h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .price-summary .form-group input {
+            background: var(--gray-100);
+            border-radius: var(--border-radius);
+            padding: 10px 15px;
+            font-weight: 500;
+        }
+
+        /* Map Container */
+        .map-container {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Status Badges */
+        .status-pending {
+            background-color: var(--warning);
+            color: #212529;
+        }
+
+        .status-in-progress {
+            background-color: var(--info);
+            color: #fff;
+        }
+
+        .status-completed {
+            background-color: var(--success);
+            color: #fff;
+        }
+
+        .status-rejected {
+            background-color: var(--danger);
+            color: #fff;
+        }
+
+        .status-pending, .status-in-progress, .status-completed, .status-rejected {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* Animations */
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @@media (max-width: 992px) {
+            .sidebar {
+                left: -280px;
+                width: 260px;
+            }
+
+                .sidebar.open {
+                    left: 0;
+                }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+                .main-content.shift {
+                    margin-left: 260px;
+                }
+        }
+
+        @@media (max-width: 768px) {
+            .main-content {
+                padding: 20px 15px;
+            }
+        }
+
+        /* Calendar */
+        .calendar {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7,1fr);
+            text-align: center;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7,1fr);
+            gap: 5px;
+        }
+
+        .calendar-day {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.2s;
+            position: relative;
+        }
+
+            .calendar-day.booking-highlight {
+                background-color: #4CAF50;
+                color: white;
+                font-weight: bold;
+            }
+
+            .calendar-day.selected {
+                border: 2px solid #007bff;
+                font-weight: bold;
+            }
+
+            .calendar-day:hover {
+                background: var(--primary-light);
+            }
+
+        /* Appointment summary */
+        .appointment-summary {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--box-shadow);
+            height: fit-content;
+            position: sticky;
+            top: 80px;
+        }
+
+            .appointment-summary h3 {
+                margin-bottom: 10px;
+                color: var(--primary);
+            }
+
+        /* Time slots */
+        .time-slot {
+            padding: 5px 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+            .time-slot.selected {
+                background-color: #007bff;
+                color: white;
+            }
+
+
+
+        /* Past booking */
+        .past-booking {
+            background-color: #ff6b6b !important;
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .past-booking-detail {
+            color: red;
+            font-weight: 600;
+        }
+
+        .pay-deposit-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px; /* space between icon and text */
+            padding: 12px 20px;
+            background-color: #28a745; /* Bootstrap success green */
+            color: #fff;
+            font-weight: 600;
+            font-size: 1rem;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+            .pay-deposit-btn i {
+                font-size: 1.1rem;
+            }
+
+            .pay-deposit-btn:hover {
+                background-color: #218838; /* darker green on hover */
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+                text-decoration: none;
+            }
+
+            .pay-deposit-btn:active {
+                transform: translateY(0);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+        .calendar-day.disabled {
+            color: #ccc;
+            pointer-events: none; /* prevents clicking */
+            background: #f0f0f0;
+        }
+        .badge {
+            background-color: red;
+            color: white;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 50%;
+            margin-left: 6px;
+            vertical-align: middle;
+            display: inline-block;
+            min-width: 20px;
+            text-align: center;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navbar -->
+        <div class="navbar">
+            <div style="display:flex; align-items:center;">
+                <div class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <div class="brand"><i class="fas fa-spa"></i><span>SuperCare Services</span></div>
+            </div>
+            <div class="user-section">
+                <span>Welcome @userName!</span>
+                <a href="@Url.Action("Index", "Home")" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-user-tie"></i> Customer Portal</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="@Url.Action("CustomerHome", "Home")"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="@Url.Action("Specialties", "Customer")"><i class="fas fa-star"></i> We specialize in</a></li>
+                <li><a href="@Url.Action("ContactInfo", "Customer")"><i class="fas fa-address-book"></i> Contact Details</a></li>
+                <li><a href="@Url.Action("Location", "Customer")"><i class="fas fa-map-marker-alt"></i> Where to find us</a></li>
+                <li><a href="@Url.Action("BookCleaning", "Customer")"><i class="fas fa-quote-left"></i> Request a Callout</a></li>
+                <li><a href="@Url.Action("QuotesAwaitingConfirmation", "Customer")"><i class="fas fa-hourglass-half"></i> Callout Awaiting Confirmation</a></li>
+                <li>
+                    <a href="@Url.Action("ConfirmedQuotes", "Customer")" class="nav-link">
+                        <i class="fas fa-check-circle"></i> Confirmed Callouts
+                        <span id="customerPendingCount" class="badge">0</span>
+                    </a>
+                </li>
+                <li><a href="@Url.Action("MyPaidQuotes", "Customer")"><i class="fas fa-money-check-alt"></i> My Paid Callouts</a></li>
+                <li>
+                    <a href="@Url.Action("ScheduleAppointment", "Customer")">
+                        <i class="fas fa-calendar-check"></i> Schedule Cleaning Appointment
+                        <span id="customerPendingDepositCount" class="badge">0</span>
+                    </a>
+                </li>
+
+                <li><a href="@Url.Action("UpcomingBookings", "Customer")"><i class="fas fa-list-alt"></i> View Upcoming & Past Bookings</a></li>
+                <li><a href="@Url.Action("RescheduleCancel", "Customer")"><i class="fas fa-exchange-alt"></i> Reschedule / Cancel Bookings</a></li>
+                <li>
+                    <a href="@Url.Action("CompletedJobs", "Customer")" class="nav-link">
+                        <i class="fas fa-check-circle"></i> Completed Jobs
+                        <span id="customerAwaitingPaymentCount" class="badge" style="display:none;">0</span>
+                    </a>
+                </li>
+
+                <li><a href="@Url.Action("InvoiceHistory", "Customer")"><i class="fas fa-file-invoice-dollar"></i> View Payment History</a></li>
+                <li><a href="@Url.Action("CustomerProfile", "Customer")"><i class="fas fa-user"></i> My Profile</a></li>
+                <li>
+                    <a href="#">
+                        <i class="fas fa-circle"></i> Blank Button
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+        <div id="mainContent" class="main-content">
+           
+            <div class="dashboard-card">
+
+                <div class="card-header"><h2><i class="fas fa-calendar-check"></i> Schedule Your Cleaning Appointment</h2></div>
+
+                <div class="booking-selection">
+                    <!-- Booking Selection Card -->
+                    @if (ViewBag.Bookings != null && ((List<BookCleaning>)ViewBag.Bookings).Any())
+                    {
+                        <div class="card booking-card mb-3 p-3" style="border-radius:15px; box-shadow:0 5px 15px rgba(0,0,0,0.1); background:#fff;">
+                            <h4><i class="fas fa-file-invoice-dollar"></i> Select a Booking</h4>
+
+                            @* Filter bookings with DepositPaid == false *@
+                            @{
+                                var pendingBookings = ((List<BookCleaning>)ViewBag.Bookings).Where(b => b.DepositPaid == false).ToList();
+                            }
+
+                            @if (pendingBookings.Any())
+                            {
+                                <select id="bookingSelect" class="form-control mt-2">
+                                    <option value="" disabled selected>Select a booking</option>
+                                    @foreach (var b in pendingBookings)
+                                    {
+                                        <option value="@b.BookCleaningID"
+                                                data-cleaningtype="@b.CleaningType"
+                                                data-location="@b.CustomerLocation"
+                                                data-amount="@(b.CleaningAmount ?? 0)"
+                                                data-deposit="@(b.Deposit ?? 0)">
+                                            Quote #@b.BookCleaningID - @b.CleaningType
+                                        </option>
+                                    }
+                                </select>
+
+                            }
+                            else
+                            {
+                                <p class="mt-2 text-muted">You have no bookings pending deposit payment.</p>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="no-booking-popup">
+                            <p>You currently have no approved bookings. If an employee was sent out for a quote, please be patient. If you haven’t requested a quote yet, please request one first.</p>
+                            <a href="@Url.Action("BookCleaning","Customer")" class="btn btn-primary">Proceed to Request a Quote</a>
+                        </div>
+                    }
+
+                </div>
+                <br />
+
+
+                <!-- Calendar & Appointment Summary -->
+                @if (ViewBag.Bookings != null && ((List<BookCleaning>)ViewBag.Bookings).Any())
+                {
+                    <div class="calendar-container">
+
+                        <!-- Calendar -->
+                        <div class="calendar">
+                            <div class="calendar-header">
+                                <h3>Select a Date</h3>
+                                <div class="calendar-nav">
+                                    <button class="calendar-nav-btn" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="calendar-nav-btn" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                            </div>
+                            <div class="calendar-month" id="currentMonth"></div>
+                            <div class="calendar-grid">
+                                <div class="calendar-weekday">Sun</div>
+                                <div class="calendar-weekday">Mon</div>
+                                <div class="calendar-weekday">Tue</div>
+                                <div class="calendar-weekday">Wed</div>
+                                <div class="calendar-weekday">Thu</div>
+                                <div class="calendar-weekday">Fri</div>
+                                <div class="calendar-weekday">Sat</div>
+                            </div>
+                        </div>
+
+                        <br />
+                        <!-- Time Slots -->
+                        <div class="calendar">
+                            <h3>Select a Time Slot</h3>
+                            <div class="time-slots" id="timeSlots"></div>
+                        </div>
+
+
+
+                        <br />
+                        <!-- Appointment Summary -->
+                        <div class="appointment-summary">
+                            <h3>Appointment Summary</h3>
+                            <div class="summary-item"><span>Cleaning Type:</span><span id="summary-type"></span></div>
+                            <div class="summary-item"><span>Date & Time:</span><span id="summary-datetime"></span></div>
+                            <div class="summary-item"><span>Customer Location:</span><span id="summary-location"></span></div>
+                            <div class="summary-item"><span>Cleaning Amount:</span><span id="summary-amount"></span></div>
+                            <div class="summary-item"><span>Deposit Required:</span><span id="summary-deposit"></span></div>
+                            <div class="summary-total"><span>Total:</span><span id="summary-total"></span></div>
+
+                            <br />
+
+                            <!-- Pay Deposit button -->
+                            <a id="payDepositBtn" href="#"
+                               class="btn btn-success">
+                                <i class="fas fa-lock"></i> Pay Deposit Now
+                            </a>
+                        </div>
+
+
+                    </div>
+                }
+            </div>
+            </div>
+        </div>
+
+        <!-- JS -->
+        <script>
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+
+            // Sidebar toggle
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                mainContent.classList.toggle('shift');
+            });
+
+            // Auto-close on mobile when clicking outside
+            document.addEventListener('click', (event) => {
+                if (window.innerWidth < 992 &&
+                    sidebar.classList.contains('open') &&
+                    !sidebar.contains(event.target) &&
+                    !menuToggle.contains(event.target)) {
+                    sidebar.classList.remove('open');
+                    mainContent.classList.remove('shift');
+                }
+            });
+
+            // Auto-close when menu link clicked (mobile)
+            sidebar.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 992) {
+                        sidebar.classList.remove('open');
+                        mainContent.classList.remove('shift');
+                    }
+                });
+            });
+
+
+
+
+            // Calendar setup
+            const currentMonthEl = document.getElementById('currentMonth');
+            const calendarGrid = document.querySelector('.calendar-grid');
+            let today = new Date();
+            let currentMonth = today.getMonth();
+            let currentYear = today.getFullYear();
+            let selectedDate = new Date();
+
+            function populateCalendar(month, year) {
+                const firstDay = new Date(year, month, 1).getDay();
+                const lastDate = new Date(year, month + 1, 0).getDate();
+                currentMonthEl.textContent = new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' });
+
+                // Remove old days
+                document.querySelectorAll('.calendar-day').forEach(d => d.remove());
+
+                // Blank days before first day
+                for (let i = 0; i < firstDay; i++) {
+                    const blank = document.createElement('div');
+                    blank.classList.add('calendar-day');
+                    calendarGrid.appendChild(blank);
+                }
+
+                // Create day elements
+                for (let d = 1; d <= lastDate; d++) {
+                    const dayEl = document.createElement('div');
+                    dayEl.classList.add('calendar-day');
+                    dayEl.textContent = d;
+
+                    const dayDate = new Date(year, month, d);
+
+                    // Disable past dates and today
+                    if (dayDate <= today) {
+                        dayEl.classList.add('disabled'); // optional: add CSS style to gray out
+                    } else {
+                        dayEl.addEventListener('click', function () {
+                            document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove('selected'));
+                            dayEl.classList.add('selected');
+                            selectedDate = dayDate;
+                            updateSummary();
+                            updateDepositButton();
+                        });
+                    }
+
+                    calendarGrid.appendChild(dayEl);
+                }
+            }
+
+
+            document.getElementById('prevMonth').addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+                populateCalendar(currentMonth, currentYear);
+            });
+            document.getElementById('nextMonth').addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+                populateCalendar(currentMonth, currentYear);
+            });
+
+            populateCalendar(currentMonth, currentYear);
+
+            // Time slots
+            const timeSlots = ["08:00 AM", "09:00 AM", "10:00 AM", "11:00 AM"];
+            let selectedTime = timeSlots[0];
+
+            function populateTimeSlots() {
+                const container = document.getElementById('timeSlots');
+                container.innerHTML = '';
+                timeSlots.forEach(time => {
+                    const slot = document.createElement('div');
+                    slot.classList.add('time-slot');
+                    slot.textContent = time;
+                    if (time === selectedTime) slot.classList.add('selected');
+                    slot.addEventListener('click', function () {
+                        document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                        slot.classList.add('selected');
+                        selectedTime = time;
+                        updateSummary();
+                        updateDepositButton(); // ✅ Now updates button when time is picked
+                    });
+
+                    container.appendChild(slot);
+                });
+            }
+
+            populateTimeSlots();
+
+            function updateSummary() {
+                const select = document.getElementById('bookingSelect');
+                if (select && select.value) { // ✅ only run if a booking is selected
+                    const option = select.options[select.selectedIndex];
+                    const type = option.getAttribute('data-cleaningtype');
+                    const location = option.getAttribute('data-location');
+                    const amount = parseFloat(option.getAttribute('data-amount'));
+                    const deposit = parseFloat(option.getAttribute('data-deposit'));
+
+                    const dateText = selectedDate.toLocaleDateString('en-ZA', {
+                        month: 'long',
+                        day: '2-digit',
+                        year: 'numeric'
+                    }) + " " + selectedTime;
+
+                    document.getElementById('summary-type').textContent = type;
+                    document.getElementById('summary-datetime').textContent = dateText;
+                    document.getElementById('summary-location').textContent = location;
+                    document.getElementById('summary-amount').textContent = `R${amount.toFixed(2)}`;
+                    document.getElementById('summary-deposit').textContent = `R${deposit.toFixed(2)}`;
+                    document.getElementById('summary-total').textContent = `R${deposit.toFixed(2)}`;
+                } else {
+                    // ✅ Clear summary if no booking is selected
+                    document.getElementById('summary-type').textContent = "";
+                    document.getElementById('summary-datetime').textContent = "";
+                    document.getElementById('summary-location').textContent = "";
+                    document.getElementById('summary-amount').textContent = "";
+                    document.getElementById('summary-deposit').textContent = "";
+                    document.getElementById('summary-total').textContent = "";
+                }
+            }
+
+            function updateDepositButton() {
+                const select = document.getElementById('bookingSelect');
+                const btn = document.getElementById('payDepositBtn');
+                if (select && btn && select.value) { // ✅ only set href if booking is selected
+                    const bookingId = select.value;
+
+                    const selectedDateTime = new Date(selectedDate);
+                    const [hours, minutesPart] = selectedTime.split(":");
+                    let hour = parseInt(hours);
+                    let minutes = parseInt(minutesPart);
+                    if (selectedTime.includes("PM") && hour < 12) hour += 12;
+                    if (selectedTime.includes("AM") && hour === 12) hour = 0;
+                    selectedDateTime.setHours(hour, minutes, 0, 0);
+
+                    const encodedDate = encodeURIComponent(selectedDateTime.toISOString());
+                    const encodedTime = encodeURIComponent(selectedTime);
+
+                    btn.href = `/Customer/DepositPayment/${bookingId}?selectedDate=${encodedDate}&selectedTime=${encodedTime}`;
+                    btn.style.display = "inline-block"; // show button
+                } else if (btn) {
+                    btn.href = "#";
+                    btn.style.display = "none"; // ✅ hide button until booking selected
+                }
+            }
+
+
+
+
+            const bookingSelect = document.getElementById('bookingSelect');
+            if (bookingSelect) {
+                bookingSelect.addEventListener('change', () => {
+                    updateSummary();
+                    updateDepositButton();
+                });
+            }
+
+            // Initialize on page load
+            updateSummary();
+            updateDepositButton();
+
+            fetch('/Customer/GetCustomerPendingPayments')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('customerPendingCount');
+                    if (data > 0) {
+                        badge.innerText = data;
+                        badge.style.display = "inline-block"; // show badge
+                    } else {
+                        badge.style.display = "none"; // hide badge
+                    }
+                });
+            // Fetch pending deposits for the customer and update badge
+            fetch('/Customer/GetCustomerPendingDeposits')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('customerPendingDepositCount');
+                    if (data > 0) {
+                        badge.innerText = data;
+                        badge.style.display = "inline-block"; // show badge
+                    } else {
+                        badge.style.display = "none"; // hide badge if zero
+                    }
+                });
+            // Fetch awaiting payment jobs count for Completed Jobs badge
+            fetch('/Customer/GetCustomerAwaitingPaymentsCount')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('customerAwaitingPaymentCount');
+                    if (data > 0) {
+                        badge.innerText = data;
+                        badge.style.display = "inline-block"; // show badge
+                    } else {
+                        badge.style.display = "none"; // hide if zero
+                    }
+                });
+        </script>
+</body>
+
+</html>

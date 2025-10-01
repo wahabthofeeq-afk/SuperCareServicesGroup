@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="2a9288a0a1e0406380c911b62b91e95b" Name="Diagram1" ZoomLevel="62">
+        <EntityTypeShape EntityType="SuperCareServicesNewModel.Customer" Width="1.5" PointX="3.375" PointY="13.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="SuperCareServicesNewModel.EmployeeClocking" Width="1.5" PointX="7.5" PointY="11.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SuperCareServicesNewModel.Employee" Width="1.5" PointX="0.5" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="SuperCareServicesNewModel.Manager" Width="1.5" PointX="8.75" PointY="1.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SuperCareServicesNewModel.QuoteRequest" Width="1.5" PointX="8.75" PointY="5.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SuperCareServicesNewModel.RegisteredEmployee" Width="1.5" PointX="3.75" PointY="0.75" IsExpanded="true" />
+        <AssociationConnector Association="SuperCareServicesNewModel.FK_QuoteRequests_Customers" ManuallyRouted="false" />
+        <AssociationConnector Association="SuperCareServicesNewModel.FK_EmployeeClockings_RegisteredEmployees" ManuallyRouted="false" />
+        <AssociationConnector Association="SuperCareServicesNewModel.FK_QuoteRequests_Employees" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="SuperCareServicesNewModel.BookCleaningEmployee" Width="1.5" PointX="1" PointY="5.375" />
+        <AssociationConnector Association="SuperCareServicesNewModel.FK__BookClean__Regis__19DFD96B" />
+        <AssociationConnector Association="SuperCareServicesNewModel.FK_RegisteredEmployee_Employee" />
+        <EntityTypeShape EntityType="SuperCareServicesNewModel.BookCleaning" Width="1.5" PointX="11" PointY="8.375" />
+        <AssociationConnector Association="SuperCareServicesNewModel.FK__BookClean__BookC__18EBB532" />
+        <AssociationConnector Association="SuperCareServicesNewModel.FK_BookCleaning_Customers" />
+        <AssociationConnector Association="SuperCareServicesNewModel.FK_BookCleaning_QuoteRequest" />
+        <EntityTypeShape EntityType="SuperCareServicesNewModel.CustomerFeedback" Width="1.5" PointX="13.25" PointY="11.375" />
+        <AssociationConnector Association="SuperCareServicesNewModel.FK_CustomerFeedback_BookCleaning" />
+        <AssociationConnector Association="SuperCareServicesNewModel.FK_CustomerFeedback_Customer" />
+        <EntityTypeShape EntityType="SuperCareServicesNewModel.ServicePackage" Width="1.5" PointX="3.375" PointY="6.75" />
+        </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

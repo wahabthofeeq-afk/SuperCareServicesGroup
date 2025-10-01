@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="8637d9ae657845dc9eba834e60f02850" Name="Diagram1">
+        <EntityTypeShape EntityType="SuperCareServicesGroupDBModel.Employee" Width="1.5" PointX="2.125" PointY="0.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="SuperCareServicesGroupDBModel.Manager" Width="1.5" PointX="0.5" PointY="0.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="SuperCareServicesGroupDBModel.RegisteredEmployee" Width="1.5" PointX="3.75" PointY="0.5" />
+        <EntityTypeShape EntityType="SuperCareServicesGroupDBModel.QuoteRequest" Width="1.5" PointX="5.375" PointY="4" />
+        <EntityTypeShape EntityType="SuperCareServicesGroupDBModel.EmployeeClocking" Width="1.5" PointX="5.875" PointY="0.5" />
+        <AssociationConnector Association="SuperCareServicesGroupDBModel.FK__EmployeeC__Regis__2DE6D218" />
+        <EntityTypeShape EntityType="SuperCareServicesGroupDBModel.Customer" Width="1.5" PointX="0.5" PointY="3.25" />
+        <AssociationConnector Association="SuperCareServicesGroupDBModel.FK_QuoteRequests_Customer" />
+        <EntityTypeShape EntityType="SuperCareServicesGroupDBModel.AssignedQuote" Width="1.5" PointX="7.625" PointY="0.5" />
+        <AssociationConnector Association="SuperCareServicesGroupDBModel.FK__AssignedQ__Emplo__42E1EEFE" />
+        <AssociationConnector Association="SuperCareServicesGroupDBModel.FK__AssignedQ__Quote__41EDCAC5" />
+        <AssociationConnector Association="SuperCareServicesGroupDBModel.FK_AssignedQuotes_QuoteRequests" />
+        <AssociationConnector Association="SuperCareServicesGroupDBModel.FK_AssignedQuotes_RegisteredEmployees" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

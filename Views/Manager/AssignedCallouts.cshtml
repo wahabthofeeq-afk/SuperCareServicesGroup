@@ -1,0 +1,870 @@
+﻿
+@{
+    ViewBag.Title = "AssignedCallouts";
+    // Determine logged-in user
+    var userName = Session["ManagerName"];
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management - SuperCare Services</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c6fbb;
+            --primary-dark: #1e5596;
+            --secondary: #ff6b6b;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-600: #6c757d;
+            --gray-800: #343a40;
+            --border-radius: 12px;
+            --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--gray-100);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* Navbar */
+        .navbar {
+            width: 100%;
+            height: 70px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 25px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1001;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+
+            .navbar .brand {
+                font-weight: bold;
+                font-size: 20px;
+                display: flex;
+                align-items: center;
+            }
+
+                .navbar .brand i {
+                    margin-right: 12px;
+                    font-size: 22px;
+                    color: #ffd166;
+                }
+
+        .menu-toggle {
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: block;
+            margin-right: 15px;
+            color: white;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 500;
+        }
+
+            .user-section .logout-btn {
+                background: white;
+                color: var(--primary);
+                padding: 8px 16px;
+                border-radius: var(--border-radius);
+                font-weight: 600;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                transition: var(--transition);
+            }
+
+                .user-section .logout-btn:hover {
+                    background: #f0f0f0;
+                    transform: translateY(-2px);
+                }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: -280px;
+            top: 70px;
+            overflow-y: auto;
+            transition: var(--transition);
+            z-index: 1000;
+            padding: 25px 0;
+            box-shadow: var(--box-shadow);
+        }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+        .sidebar-header {
+            padding: 0 25px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            margin-bottom: 20px;
+        }
+
+            .sidebar-header h3 {
+                font-weight: 600;
+                font-size: 1.3rem;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0 15px;
+        }
+
+            .sidebar-menu li {
+                margin-bottom: 8px;
+            }
+
+            .sidebar-menu a {
+                display: flex;
+                align-items: center;
+                padding: 14px 18px;
+                color: rgba(255,255,255,0.9);
+                text-decoration: none;
+                border-radius: var(--border-radius);
+                font-weight: 500;
+                margin-bottom: 5px;
+                transition: var(--transition);
+            }
+
+                .sidebar-menu a:hover {
+                    background-color: rgba(255,255,255,0.12);
+                    color: white;
+                    transform: translateX(5px);
+                }
+
+                .sidebar-menu a i {
+                    margin-right: 15px;
+                    width: 20px;
+                    text-align: center;
+                    font-size: 1.1rem;
+                }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 0;
+            padding: 30px;
+            margin-top: 70px;
+            transition: margin-left 0.3s ease;
+        }
+
+            .main-content.shift {
+                margin-left: 280px;
+            }
+
+        /* Dashboard Cards / Call Out Card */
+        .dashboard-card, .callout-card {
+            background: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            transition: var(--transition);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+            .dashboard-card:hover, .callout-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+            .card-header h2 {
+                font-size: 1.6rem;
+                color: var(--primary);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+        /* Form Groups */
+        .form-group label {
+            font-weight: 600;
+            color: var(--dark);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+            .form-group input:focus,
+            .form-group select:focus,
+            .form-group textarea:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 2px rgba(44,111,187,0.2);
+            }
+
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--primary);
+            color: #fff;
+            border-radius: var(--border-radius);
+            padding: 12px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+        }
+
+            .btn-primary:hover {
+                background-color: var(--primary-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+            }
+
+        /* Price Summary */
+        .price-summary h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .price-summary .form-group input {
+            background: var(--gray-100);
+            border-radius: var(--border-radius);
+            padding: 10px 15px;
+            font-weight: 500;
+        }
+
+        /* Map Container */
+        .map-container {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Status Badges */
+        .status-pending {
+            background-color: var(--warning);
+            color: #212529;
+        }
+
+        .status-in-progress {
+            background-color: var(--info);
+            color: #fff;
+        }
+
+        .status-completed {
+            background-color: var(--success);
+            color: #fff;
+        }
+
+        .status-rejected {
+            background-color: var(--danger);
+            color: #fff;
+        }
+
+        .status-pending, .status-in-progress, .status-completed, .status-rejected {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* Animations */
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @@media (max-width: 992px) {
+            .sidebar {
+                left: -280px;
+                width: 260px;
+            }
+
+                .sidebar.open {
+                    left: 0;
+                }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+                .main-content.shift {
+                    margin-left: 260px;
+                }
+        }
+
+        @@media (max-width: 768px) {
+            .main-content {
+                padding: 20px 15px;
+            }
+        }
+        /* Table Styles */
+        .table-container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .table-header h3 {
+                font-size: 1.3rem;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .data-table th {
+                background-color: var(--gray-100);
+                padding: 16px 20px;
+                text-align: left;
+                font-weight: 600;
+                color: var(--gray-800);
+                border-bottom: 2px solid var(--gray-300);
+            }
+
+            .data-table td {
+                padding: 14px 20px;
+                border-bottom: 1px solid var(--gray-200);
+                vertical-align: middle;
+            }
+
+            .data-table tr:hover {
+                background-color: var(--gray-100);
+            }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+            .btn-success:hover {
+                background-color: #218838;
+            }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background-color: var(--primary-dark);
+            }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+
+            .btn-warning:hover {
+                background-color: #e0a800;
+            }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray-600);
+        }
+
+            .empty-state i {
+                font-size: 3rem;
+                margin-bottom: 15px;
+                display: block;
+                color: var(--gray-300);
+            }
+
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 90%;
+            max-width: 500px;
+            animation: modalFadeIn 0.3s;
+        }
+
+        @@keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+            .modal-header h3 {
+                margin: 0;
+                color: var(--dark);
+            }
+
+        .close {
+            color: var(--gray-600);
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+            .close:hover {
+                color: var(--dark);
+            }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 600;
+                color: var(--gray-800);
+                font-size: 1rem;
+            }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(44, 111, 187, 0.1);
+            }
+
+        /* Alert Styles */
+        .alert {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-success {
+            background-color: #eaf7ee;
+            color: var(--success);
+            border: 1px solid #b8e6c5;
+        }
+
+        .alert-danger {
+            background-color: #fcecea;
+            color: var(--danger);
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert i {
+            font-size: 1.2rem;
+        }
+
+
+
+        /* Animation for cards */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dashboard-card {
+            animation: fadeIn 0.5s ease-out;
+        }
+        .badge {
+            background-color: red;
+            color: white;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 50%;
+            margin-left: 6px;
+            vertical-align: middle;
+            display: inline-block;
+            min-width: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navbar -->
+        <div class="navbar">
+            <div style="display:flex; align-items:center;">
+                <div class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <div class="brand"><i class="fas fa-spa"></i><span>SuperCare Services</span></div>
+            </div>
+            <div class="user-section">
+                <span>Welcome @userName!</span>
+                <a href="@Url.Action("Index", "Home")" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-user-tie"></i> Manager Portal</h3>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="@Url.Action("ManagerEmployeesInfo", "Manager")"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li>
+                    <a href="@Url.Action("ConfirmCallout", "Manager")" class="nav-link">
+                        <i class="fas fa-check-double"></i> Confirm Callout
+                        <span id="pendingCount" class="badge">0</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="@Url.Action("ManagerAssignJobs", "Manager")" class="nav-link">
+                        <i class="fas fa-tasks"></i> Callout Assignment
+                        <span id="assignCount" class="badge">0</span>
+                    </a>
+                </li>
+
+                <li><a href="@Url.Action("AssignedCallouts", "Manager")"><i class="fas fa-truck"></i> Assigned Callouts</a></li>
+                <li>
+                    <a href="@Url.Action("ManagerAllowBooking", "Manager")" class="nav-link">
+                        <i class="fas fa-calendar-check"></i> Allow Booking
+                        <span id="allowBookingCount" class="badge">0</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("ManagerAssignCleaningJob", "Manager")" class="nav-link">
+                        <i class="fas fa-tasks"></i> Cleaning Assignment
+                        <span id="cleaningAssignCount" class="badge">0</span>
+                    </a>
+                </li>
+
+
+                <!--   <li><a href="@Url.Action("ManagerServicePackages", "Manager")"><i class="fas fa-box-open"></i> Edit Service Packages</a></li>-->
+                <li><a href="@Url.Action("ManagerCompletedJobs", "Manager")"><i class="fas fa-clipboard-check"></i> Completed Jobs</a></li>
+                <li><a href="@Url.Action("ManagerFeedback", "Manager")"><i class="fas fa-star"></i> Customer Feedback</a></li>
+                <li><a href="@Url.Action("ManagerProfile", "Manager")"><i class="fas fa-user"></i> My Profile</a></li>
+                <li><a href="#"></a></li>
+
+            </ul>
+
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Dashboard -->
+            <div class="dashboard" id="dashboard">
+                <!-- Assigned Quotes -->
+                <div class="table-container" style="margin-top: 40px;">
+                    <div class="table-header">
+                        <h3><i class="fas fa-users"></i> Assigned Callouts</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cleaning Type</th>
+                                    <th>Details</th>
+                                    <th>Customer Location</th>
+                                    <th>Preferred Date</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                    <th>Assigned To</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.PaidQuotes != null)
+                                {
+                                    var assignedQuotes = ((List<QuoteRequest>)ViewBag.PaidQuotes)
+                                        .Where(q => q.IsPaid && q.Confirmation && q.AssignedEmployeeID != null)
+                                        .ToList();
+
+                                    if (assignedQuotes.Count > 0)
+                                    {
+                                        foreach (var quote in assignedQuotes)
+                                        {
+                                            var employee = ((List<RegisteredEmployee>)ViewBag.RegisteredEmployees)
+                                                .FirstOrDefault(e => e.RegisteredEmployeeID == quote.AssignedEmployeeID);
+
+                                            <tr>
+                                                <td>@quote.QuoteRequestID</td>
+                                                <td>@quote.CleaningType</td>
+                                                <td>@quote.Details</td>
+                                                <td>@quote.CustomerLocation</td>
+                                                <td>@quote.PreferredDate.ToString("yyyy-MM-dd")</td>
+                                                <td>@quote.SubmittedAt.ToString("g")</td>
+                                                <td>
+                                                    <span class="status-badge @(quote.Status == "Completed" ? "status-completed" : "status-pending")">
+                                                        @quote.Status
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    @(employee != null ? $"{employee.FirstName} {employee.LastName}" : "Unknown")
+                                                </td>
+
+                                                <!--
+    <td>
+        @using (Html.BeginForm("RejectQuote", "Manager", FormMethod.Post, new { onsubmit = "return confirm('Are you sure?');" }))
+        {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="QuoteRequestID" value="@quote.QuoteRequestID" />
+
+            <button type="submit" name="action" value="Reject" class="btn btn-danger btn-sm">
+                <i class="fas fa-trash-alt"></i> Reject
+            </button>
+        }
+    </td>
+         Assigned Quotes -->
+                                            </tr>
+
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="8" class="empty-state">
+                                                <i class="fas fa-inbox"></i> No assigned callouts yet.
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+
+        // Sidebar toggle
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            mainContent.classList.toggle('shift');
+        });
+
+        // Auto-close on mobile when clicking outside
+        document.addEventListener('click', (event) => {
+            if (window.innerWidth < 992 &&
+                sidebar.classList.contains('open') &&
+                !sidebar.contains(event.target) &&
+                !menuToggle.contains(event.target)) {
+                sidebar.classList.remove('open');
+                mainContent.classList.remove('shift');
+            }
+        });
+
+        // Auto-close when menu link clicked (mobile)
+        sidebar.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 992) {
+                    sidebar.classList.remove('open');
+                    mainContent.classList.remove('shift');
+                }
+            });
+        });
+
+        document.querySelectorAll('.status-badge').forEach(el => {
+            const statusText = el.textContent.trim().toLowerCase();
+            el.classList.remove('status-pending', 'status-in-progress', 'status-completed', 'status-rejected');
+            if (statusText === 'pending') el.classList.add('status-pending');
+            else if (statusText === 'in progress') el.classList.add('status-in-progress');
+            else if (statusText === 'completed') el.classList.add('status-completed');
+            else if (statusText === 'rejected') el.classList.add('status-rejected');
+            else el.classList.add('status-pending');
+        });
+        fetch('/Manager/GetPendingCount')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.getElementById('pendingCount');
+                if (data > 0) {
+                    badge.innerText = data;
+                    badge.style.display = "inline-block"; // show badge
+                } else {
+                    badge.style.display = "none"; // hide badge
+                }
+            });
+        fetch('/Manager/GetUnassignedPaidConfirmedCount')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.getElementById('assignCount');
+                if (data > 0) {
+                    badge.innerText = data;
+                    badge.style.display = "inline-block"; // show badge
+                } else {
+                    badge.style.display = "none"; // hide badge
+                }
+            });
+        // Update Allow Booking badge
+        fetch('/Manager/GetAllowBookingCount')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.getElementById('allowBookingCount');
+                if (data > 0) {
+                    badge.innerText = data;
+                    badge.style.display = "inline-block"; // show badge
+                } else {
+                    badge.style.display = "none"; // hide badge
+                }
+            });
+        fetch('/Manager/GetUnassignedPaidCleaningCount')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.getElementById('cleaningAssignCount'); // add this ID to your HTML badge
+                if (data > 0) {
+                    badge.innerText = data;
+                    badge.style.display = "inline-block"; // show badge
+                } else {
+                    badge.style.display = "none"; // hide badge
+                }
+            });
+    </script>
+</body>
+</html>

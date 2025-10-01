@@ -1,0 +1,507 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="SuperCareServicesGroupDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="AssignedQuotes">
+          <Key>
+            <PropertyRef Name="AssignedQuoteID" />
+          </Key>
+          <Property Name="AssignedQuoteID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="QuoteRequestID" Type="int" Nullable="false" />
+          <Property Name="RegisteredEmployeeId" Type="int" Nullable="false" />
+          <Property Name="AssignmentDate" Type="datetime" Nullable="false" />
+          <Property Name="Status" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Notes" Type="nvarchar(max)" />
+          <Property Name="CreatedAt" Type="datetime" Nullable="false" />
+          <Property Name="UpdatedAt" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Customer">
+          <Key>
+            <PropertyRef Name="CustomerID" />
+          </Key>
+          <Property Name="CustomerID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FirstName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="LastName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="PhoneNumber" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="PasswordHash" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="ProfilePic" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="Employee">
+          <Key>
+            <PropertyRef Name="EmployeeID" />
+          </Key>
+          <Property Name="EmployeeID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FirstName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="LastName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="PhoneNumber" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="PasswordHash" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="ProfilePic" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="EmployeeClockings">
+          <Key>
+            <PropertyRef Name="EmployeeClockingId" />
+          </Key>
+          <Property Name="EmployeeClockingId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RegisteredEmployeeId" Type="int" Nullable="false" />
+          <Property Name="ClockInTime" Type="datetime" Nullable="false" />
+          <Property Name="ClockOutTime" Type="datetime" />
+          <Property Name="IsClockedIn" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Manager">
+          <Key>
+            <PropertyRef Name="ManagerID" />
+          </Key>
+          <Property Name="ManagerID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FirstName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="LastName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="PhoneNumber" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="Password" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="CreatedAt" Type="datetime" Nullable="false" />
+          <Property Name="ProfilePic" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="QuoteRequests">
+          <Key>
+            <PropertyRef Name="QuoteRequestID" />
+          </Key>
+          <Property Name="QuoteRequestID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CleaningType" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Details" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="PreferredDate" Type="date" Nullable="false" />
+          <Property Name="CustomerID" Type="int" Nullable="false" />
+          <Property Name="SubmittedAt" Type="datetime" Nullable="false" />
+          <Property Name="CustomerLocation" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="Status" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="RegisteredEmployees">
+          <Key>
+            <PropertyRef Name="RegisteredEmployeeId" />
+          </Key>
+          <Property Name="RegisteredEmployeeId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FirstName" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="LastName" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="PhoneNumber" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="PasswordHash" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="ProfilePic" Type="nvarchar" MaxLength="255" />
+          <Property Name="Status" Type="nvarchar" MaxLength="50" />
+          <Property Name="Specialization" Type="nvarchar" MaxLength="100" />
+          <Property Name="CurrentAssignments" Type="int" />
+        </EntityType>
+        <Association Name="FK__EmployeeC__Regis__2DE6D218">
+          <End Role="RegisteredEmployees" Type="Self.RegisteredEmployees" Multiplicity="1" />
+          <End Role="EmployeeClockings" Type="Self.EmployeeClockings" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RegisteredEmployees">
+              <PropertyRef Name="RegisteredEmployeeId" />
+            </Principal>
+            <Dependent Role="EmployeeClockings">
+              <PropertyRef Name="RegisteredEmployeeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AssignedQuotes_QuoteRequests">
+          <End Role="QuoteRequests" Type="Self.QuoteRequests" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="AssignedQuotes" Type="Self.AssignedQuotes" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="QuoteRequests">
+              <PropertyRef Name="QuoteRequestID" />
+            </Principal>
+            <Dependent Role="AssignedQuotes">
+              <PropertyRef Name="QuoteRequestID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AssignedQuotes_RegisteredEmployees">
+          <End Role="RegisteredEmployees" Type="Self.RegisteredEmployees" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="AssignedQuotes" Type="Self.AssignedQuotes" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RegisteredEmployees">
+              <PropertyRef Name="RegisteredEmployeeId" />
+            </Principal>
+            <Dependent Role="AssignedQuotes">
+              <PropertyRef Name="RegisteredEmployeeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_QuoteRequests_Customer">
+          <End Role="Customer" Type="Self.Customer" Multiplicity="1" />
+          <End Role="QuoteRequests" Type="Self.QuoteRequests" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Customer">
+              <PropertyRef Name="CustomerID" />
+            </Principal>
+            <Dependent Role="QuoteRequests">
+              <PropertyRef Name="CustomerID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="SuperCareServicesGroupDBModelStoreContainer">
+          <EntitySet Name="AssignedQuotes" EntityType="Self.AssignedQuotes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Customer" EntityType="Self.Customer" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Employee" EntityType="Self.Employee" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="EmployeeClockings" EntityType="Self.EmployeeClockings" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Manager" EntityType="Self.Manager" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="QuoteRequests" EntityType="Self.QuoteRequests" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RegisteredEmployees" EntityType="Self.RegisteredEmployees" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__EmployeeC__Regis__2DE6D218" Association="Self.FK__EmployeeC__Regis__2DE6D218">
+            <End Role="RegisteredEmployees" EntitySet="RegisteredEmployees" />
+            <End Role="EmployeeClockings" EntitySet="EmployeeClockings" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AssignedQuotes_QuoteRequests" Association="Self.FK_AssignedQuotes_QuoteRequests">
+            <End Role="QuoteRequests" EntitySet="QuoteRequests" />
+            <End Role="AssignedQuotes" EntitySet="AssignedQuotes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AssignedQuotes_RegisteredEmployees" Association="Self.FK_AssignedQuotes_RegisteredEmployees">
+            <End Role="RegisteredEmployees" EntitySet="RegisteredEmployees" />
+            <End Role="AssignedQuotes" EntitySet="AssignedQuotes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_QuoteRequests_Customer" Association="Self.FK_QuoteRequests_Customer">
+            <End Role="Customer" EntitySet="Customer" />
+            <End Role="QuoteRequests" EntitySet="QuoteRequests" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="SuperCareServicesGroupDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Employee">
+          <Key>
+            <PropertyRef Name="EmployeeID" />
+          </Key>
+          <Property Name="EmployeeID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FirstName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="LastName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PasswordHash" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ProfilePic" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="Manager">
+          <Key>
+            <PropertyRef Name="ManagerID" />
+          </Key>
+          <Property Name="ManagerID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FirstName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="LastName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Password" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CreatedAt" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="ProfilePic" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityContainer Name="SuperCareServicesGroupDBEntities1" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Employees" EntityType="Self.Employee" />
+          <EntitySet Name="Managers" EntityType="Self.Manager" />
+          <EntitySet Name="RegisteredEmployees" EntityType="SuperCareServicesGroupDBModel.RegisteredEmployee" />
+          <EntitySet Name="QuoteRequests" EntityType="SuperCareServicesGroupDBModel.QuoteRequest" />
+          <EntitySet Name="EmployeeClockings" EntityType="SuperCareServicesGroupDBModel.EmployeeClocking" />
+          <AssociationSet Name="FK__EmployeeC__Regis__2DE6D218" Association="SuperCareServicesGroupDBModel.FK__EmployeeC__Regis__2DE6D218">
+            <End Role="RegisteredEmployee" EntitySet="RegisteredEmployees" />
+            <End Role="EmployeeClocking" EntitySet="EmployeeClockings" />
+          </AssociationSet>
+          <EntitySet Name="Customers" EntityType="SuperCareServicesGroupDBModel.Customer" />
+          <AssociationSet Name="FK_QuoteRequests_Customer" Association="SuperCareServicesGroupDBModel.FK_QuoteRequests_Customer">
+            <End Role="Customer" EntitySet="Customers" />
+            <End Role="QuoteRequest" EntitySet="QuoteRequests" />
+          </AssociationSet>
+          <EntitySet Name="AssignedQuotes" EntityType="SuperCareServicesGroupDBModel.AssignedQuote" />
+          <AssociationSet Name="FK__AssignedQ__Emplo__42E1EEFE" Association="SuperCareServicesGroupDBModel.FK__AssignedQ__Emplo__42E1EEFE">
+            <End Role="RegisteredEmployee" EntitySet="RegisteredEmployees" />
+            <End Role="AssignedQuote" EntitySet="AssignedQuotes" />
+          </AssociationSet>
+          <AssociationSet Name="FK__AssignedQ__Quote__41EDCAC5" Association="SuperCareServicesGroupDBModel.FK__AssignedQ__Quote__41EDCAC5">
+            <End Role="QuoteRequest" EntitySet="QuoteRequests" />
+            <End Role="AssignedQuote" EntitySet="AssignedQuotes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AssignedQuotes_QuoteRequests" Association="SuperCareServicesGroupDBModel.FK_AssignedQuotes_QuoteRequests">
+            <End Role="QuoteRequest" EntitySet="QuoteRequests" />
+            <End Role="AssignedQuote" EntitySet="AssignedQuotes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AssignedQuotes_RegisteredEmployees" Association="SuperCareServicesGroupDBModel.FK_AssignedQuotes_RegisteredEmployees">
+            <End Role="RegisteredEmployee" EntitySet="RegisteredEmployees" />
+            <End Role="AssignedQuote" EntitySet="AssignedQuotes" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="RegisteredEmployee">
+          <Key>
+            <PropertyRef Name="RegisteredEmployeeId" />
+          </Key>
+          <Property Name="RegisteredEmployeeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FirstName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="LastName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="PhoneNumber" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="PasswordHash" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="EmployeeClockings" Relationship="SuperCareServicesGroupDBModel.FK__EmployeeC__Regis__2DE6D218" FromRole="RegisteredEmployee" ToRole="EmployeeClocking" />
+          <Property Name="ProfilePic" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Specialization" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="CurrentAssignments" Type="Int32" />
+          <NavigationProperty Name="AssignedQuotes" Relationship="SuperCareServicesGroupDBModel.FK__AssignedQ__Emplo__42E1EEFE" FromRole="RegisteredEmployee" ToRole="AssignedQuote" />
+        </EntityType>
+        <EntityType Name="QuoteRequest">
+          <Key>
+            <PropertyRef Name="QuoteRequestID" />
+          </Key>
+          <Property Name="QuoteRequestID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CleaningType" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Details" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PreferredDate" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="CustomerID" Type="Int32" Nullable="false" />
+          <Property Name="SubmittedAt" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Customer" Relationship="SuperCareServicesGroupDBModel.FK_QuoteRequests_Customer" FromRole="QuoteRequest" ToRole="Customer" />
+          <Property Name="CustomerLocation" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="AssignedQuotes" Relationship="SuperCareServicesGroupDBModel.FK__AssignedQ__Quote__41EDCAC5" FromRole="QuoteRequest" ToRole="AssignedQuote" />
+        </EntityType>
+        <EntityType Name="EmployeeClocking">
+          <Key>
+            <PropertyRef Name="EmployeeClockingId" />
+          </Key>
+          <Property Name="EmployeeClockingId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RegisteredEmployeeId" Type="Int32" Nullable="false" />
+          <Property Name="ClockInTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="ClockOutTime" Type="DateTime" Precision="3" />
+          <Property Name="IsClockedIn" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="RegisteredEmployee" Relationship="SuperCareServicesGroupDBModel.FK__EmployeeC__Regis__2DE6D218" FromRole="EmployeeClocking" ToRole="RegisteredEmployee" />
+        </EntityType>
+        <Association Name="FK__EmployeeC__Regis__2DE6D218">
+          <End Type="SuperCareServicesGroupDBModel.RegisteredEmployee" Role="RegisteredEmployee" Multiplicity="1" />
+          <End Type="SuperCareServicesGroupDBModel.EmployeeClocking" Role="EmployeeClocking" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RegisteredEmployee">
+              <PropertyRef Name="RegisteredEmployeeId" />
+            </Principal>
+            <Dependent Role="EmployeeClocking">
+              <PropertyRef Name="RegisteredEmployeeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Customer">
+          <Key>
+            <PropertyRef Name="CustomerID" />
+          </Key>
+          <Property Name="CustomerID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FirstName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="LastName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="PhoneNumber" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="PasswordHash" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="ProfilePic" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="QuoteRequests" Relationship="SuperCareServicesGroupDBModel.FK_QuoteRequests_Customer" FromRole="Customer" ToRole="QuoteRequest" />
+        </EntityType>
+        <Association Name="FK_QuoteRequests_Customer">
+          <End Type="SuperCareServicesGroupDBModel.Customer" Role="Customer" Multiplicity="1" />
+          <End Type="SuperCareServicesGroupDBModel.QuoteRequest" Role="QuoteRequest" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Customer">
+              <PropertyRef Name="CustomerID" />
+            </Principal>
+            <Dependent Role="QuoteRequest">
+              <PropertyRef Name="CustomerID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="AssignedQuote">
+          <Key>
+            <PropertyRef Name="AssignmentID" />
+            <PropertyRef Name="AssignedQuoteID" />
+          </Key>
+          <Property Name="AssignmentID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="QuoteID" Type="Int32" />
+          <Property Name="AssignmentDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Notes" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="QuoteRequest" Relationship="SuperCareServicesGroupDBModel.FK__AssignedQ__Quote__41EDCAC5" FromRole="AssignedQuote" ToRole="QuoteRequest" />
+          <Property Name="AssignedQuoteID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="QuoteRequestID" Type="Int32" Nullable="false" />
+          <Property Name="RegisteredEmployeeId" Type="Int32" Nullable="false" />
+          <Property Name="CreatedAt" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="UpdatedAt" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="RegisteredEmployee1" Relationship="SuperCareServicesGroupDBModel.FK_AssignedQuotes_RegisteredEmployees" FromRole="AssignedQuote" ToRole="RegisteredEmployee" />
+        </EntityType>
+        <Association Name="FK__AssignedQ__Emplo__42E1EEFE">
+          <End Type="SuperCareServicesGroupDBModel.RegisteredEmployee" Role="RegisteredEmployee" Multiplicity="0..1" />
+          <End Type="SuperCareServicesGroupDBModel.AssignedQuote" Role="AssignedQuote" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RegisteredEmployee">
+              <PropertyRef Name="RegisteredEmployeeId" />
+            </Principal>
+            <Dependent Role="AssignedQuote">
+              <PropertyRef Name="EmployeeID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__AssignedQ__Quote__41EDCAC5">
+          <End Type="SuperCareServicesGroupDBModel.QuoteRequest" Role="QuoteRequest" Multiplicity="0..1" />
+          <End Type="SuperCareServicesGroupDBModel.AssignedQuote" Role="AssignedQuote" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="QuoteRequest">
+              <PropertyRef Name="QuoteRequestID" />
+            </Principal>
+            <Dependent Role="AssignedQuote">
+              <PropertyRef Name="QuoteID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AssignedQuotes_QuoteRequests">
+          <End Type="SuperCareServicesGroupDBModel.QuoteRequest" Role="QuoteRequest" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="SuperCareServicesGroupDBModel.AssignedQuote" Role="AssignedQuote" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="QuoteRequest">
+              <PropertyRef Name="QuoteRequestID" />
+            </Principal>
+            <Dependent Role="AssignedQuote">
+              <PropertyRef Name="QuoteRequestID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AssignedQuotes_RegisteredEmployees">
+          <End Type="SuperCareServicesGroupDBModel.RegisteredEmployee" Role="RegisteredEmployee" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="SuperCareServicesGroupDBModel.AssignedQuote" Role="AssignedQuote" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RegisteredEmployee">
+              <PropertyRef Name="RegisteredEmployeeId" />
+            </Principal>
+            <Dependent Role="AssignedQuote">
+              <PropertyRef Name="RegisteredEmployeeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="SuperCareServicesGroupDBModelStoreContainer" CdmEntityContainer="SuperCareServicesGroupDBEntities1">
+          <EntitySetMapping Name="Employees">
+            <EntityTypeMapping TypeName="SuperCareServicesGroupDBModel.Employee">
+              <MappingFragment StoreEntitySet="Employee">
+                <ScalarProperty Name="ProfilePic" ColumnName="ProfilePic" />
+                <ScalarProperty Name="EmployeeID" ColumnName="EmployeeID" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Managers">
+            <EntityTypeMapping TypeName="SuperCareServicesGroupDBModel.Manager">
+              <MappingFragment StoreEntitySet="Manager">
+                <ScalarProperty Name="ProfilePic" ColumnName="ProfilePic" />
+                <ScalarProperty Name="ManagerID" ColumnName="ManagerID" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RegisteredEmployees">
+            <EntityTypeMapping TypeName="SuperCareServicesGroupDBModel.RegisteredEmployee">
+              <MappingFragment StoreEntitySet="RegisteredEmployees">
+                <ScalarProperty Name="CurrentAssignments" ColumnName="CurrentAssignments" />
+                <ScalarProperty Name="Specialization" ColumnName="Specialization" />
+                <ScalarProperty Name="ProfilePic" ColumnName="ProfilePic" />
+                <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="RegisteredEmployeeId" ColumnName="RegisteredEmployeeId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="QuoteRequests">
+            <EntityTypeMapping TypeName="SuperCareServicesGroupDBModel.QuoteRequest">
+              <MappingFragment StoreEntitySet="QuoteRequests">
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="CustomerLocation" ColumnName="CustomerLocation" />
+                <ScalarProperty Name="SubmittedAt" ColumnName="SubmittedAt" />
+                <ScalarProperty Name="CustomerID" ColumnName="CustomerID" />
+                <ScalarProperty Name="PreferredDate" ColumnName="PreferredDate" />
+                <ScalarProperty Name="Details" ColumnName="Details" />
+                <ScalarProperty Name="CleaningType" ColumnName="CleaningType" />
+                <ScalarProperty Name="QuoteRequestID" ColumnName="QuoteRequestID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="EmployeeClockings">
+            <EntityTypeMapping TypeName="SuperCareServicesGroupDBModel.EmployeeClocking">
+              <MappingFragment StoreEntitySet="EmployeeClockings">
+                <ScalarProperty Name="IsClockedIn" ColumnName="IsClockedIn" />
+                <ScalarProperty Name="ClockOutTime" ColumnName="ClockOutTime" />
+                <ScalarProperty Name="ClockInTime" ColumnName="ClockInTime" />
+                <ScalarProperty Name="RegisteredEmployeeId" ColumnName="RegisteredEmployeeId" />
+                <ScalarProperty Name="EmployeeClockingId" ColumnName="EmployeeClockingId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Customers">
+            <EntityTypeMapping TypeName="SuperCareServicesGroupDBModel.Customer">
+              <MappingFragment StoreEntitySet="Customer">
+                <ScalarProperty Name="ProfilePic" ColumnName="ProfilePic" />
+                <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="CustomerID" ColumnName="CustomerID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AssignedQuotes">
+            <EntityTypeMapping TypeName="SuperCareServicesGroupDBModel.AssignedQuote">
+              <MappingFragment StoreEntitySet="AssignedQuotes">
+                <ScalarProperty Name="UpdatedAt" ColumnName="UpdatedAt" />
+                <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+                <ScalarProperty Name="RegisteredEmployeeId" ColumnName="RegisteredEmployeeId" />
+                <ScalarProperty Name="QuoteRequestID" ColumnName="QuoteRequestID" />
+                <ScalarProperty Name="AssignedQuoteID" ColumnName="AssignedQuoteID" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Notes" ColumnName="Notes" />
+                <ScalarProperty Name="AssignmentDate" ColumnName="AssignmentDate" />
+                </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

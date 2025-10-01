@@ -1,0 +1,543 @@
+﻿
+@{
+    ViewBag.Title = "EmployeeNotifications";
+    // Determine logged-in user
+    var userName = Session["EmployeeName"] ;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Chat - SuperCare Services</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c6fbb;
+            --primary-dark: #1e5596;
+            --secondary: #ff6b6b;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-600: #6c757d;
+            --gray-800: #343a40;
+            --border-radius: 12px;
+            --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7f9;
+            color: var(--dark);
+            line-height: 1.6;
+            height: 100%;
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            width: 100%;
+            height: 70px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 25px;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1001;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        }
+
+            .navbar .brand {
+                font-weight: bold;
+                font-size: 20px;
+                display: flex;
+                align-items: center;
+            }
+
+                .navbar .brand i {
+                    margin-right: 12px;
+                    font-size: 22px;
+                    color: #ffd166;
+                }
+
+            .navbar .user-section {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                font-weight: 500;
+            }
+
+        .user-section .logout-btn {
+            background: white;
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .user-section .logout-btn:hover {
+                background: #f0f0f0;
+                transform: translateY(-2px);
+            }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 70px;
+            overflow-y: auto;
+            transition: var(--transition);
+            z-index: 1000;
+            padding: 25px 0;
+            box-shadow: var(--box-shadow);
+        }
+
+        .sidebar-header {
+            padding: 0 25px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            margin-bottom: 20px;
+        }
+
+            .sidebar-header h3 {
+                font-weight: 600;
+                font-size: 1.3rem;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0 15px;
+        }
+
+            .sidebar-menu li {
+                margin-bottom: 8px;
+            }
+
+            .sidebar-menu a {
+                display: flex;
+                align-items: center;
+                padding: 14px 18px;
+                color: rgba(255, 255, 255, 0.9);
+                text-decoration: none;
+                border-radius: var(--border-radius);
+                transition: var(--transition);
+                font-weight: 500;
+                margin-bottom: 5px;
+            }
+
+                .sidebar-menu a:hover, .sidebar-menu a.active {
+                    background-color: rgba(255, 255, 255, 0.12);
+                    color: white;
+                    transform: translateX(5px);
+                }
+
+                .sidebar-menu a i {
+                    margin-right: 15px;
+                    width: 20px;
+                    text-align: center;
+                    font-size: 1.1rem;
+                }
+
+        .profile-section {
+            margin-top: 30px;
+            padding: 20px 25px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 12px 18px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+            .profile-btn:hover {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+
+            .profile-btn i {
+                margin-right: 15px;
+                font-size: 1.3rem;
+            }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+            margin-top: 70px;
+        }
+
+        /* Dashboard Content */
+        .dashboard-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: var(--transition);
+        }
+
+            .dashboard-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+            .card-header h2 {
+                font-size: 1.5rem;
+                color: var(--dark);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+        /* Clock Cards */
+        .clock-cards {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .clock-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 30px;
+            width: 300px;
+            text-align: center;
+            transition: var(--transition);
+            border-top: 5px solid var(--primary);
+        }
+
+            .clock-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            }
+
+            .clock-card.clock-in {
+                border-top-color: var(--success);
+            }
+
+            .clock-card.clock-out {
+                border-top-color: var(--danger);
+            }
+
+        .clock-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .clock-in .clock-icon {
+            color: var(--success);
+        }
+
+        .clock-out .clock-icon {
+            color: var(--danger);
+        }
+
+        .clock-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .clock-card p {
+            color: var(--gray-600);
+            margin-bottom: 25px;
+        }
+
+        .clock-btn {
+            display: inline-block;
+            padding: 14px 28px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            width: 100%;
+            text-align: center;
+            font-size: 1.1rem;
+            border: none;
+            cursor: pointer;
+        }
+
+            .clock-btn:not(:disabled):hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+            .btn-success:hover:not(:disabled) {
+                background-color: #218838;
+            }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+            .btn-danger:hover:not(:disabled) {
+                background-color: #c82333;
+            }
+
+        .btn-disabled {
+            background-color: var(--gray-300);
+            color: var(--gray-600);
+            cursor: not-allowed;
+        }
+
+        /* Alert Styles */
+        .alert {
+            padding: 18px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 500;
+        }
+
+        .alert-info {
+            background-color: #e6f3ff;
+            color: var(--info);
+            border: 1px solid #9ed5ff;
+        }
+
+        .alert i {
+            font-size: 1.4rem;
+        }
+
+        /* Status indicator */
+        .status-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+
+        /* Responsive */
+        @@media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+            }
+
+                .sidebar.open {
+                    transform: translateX(0);
+                }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .main-content {
+                padding: 20px 15px;
+            }
+
+            .clock-cards {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .clock-card {
+                width: 100%;
+                max-width: 350px;
+            }
+
+            .navbar .brand span {
+                display: none;
+            }
+
+            .navbar .brand i {
+                margin-right: 0;
+                font-size: 26px;
+            }
+        }
+
+        /* Menu Toggle Button (for mobile) */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            color: white;
+            cursor: pointer;
+            margin-right: 20px;
+        }
+
+        @@media (max-width: 992px) {
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        /* Animation for clock cards */
+        @@keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.03);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .clock-card {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Last clock info */
+        .last-clock-info {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: var(--gray-100);
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
+        }
+
+            .last-clock-info strong {
+                color: var(--primary);
+            }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navbar -->
+        <div class="navbar">
+            <div class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="brand">
+                <i class="fas fa-spa"></i>
+                <span>SuperCare Services</span>
+            </div>
+            <div class="user-section">
+                <span>Welcome @userName!</span>
+                <a href="@Url.Action("Index", "Home")" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-user-circle"></i> Employee Portal</h3>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="@Url.Action("EmployeeClock", "Employee")"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="@Url.Action("EmployeeChat", "Employee")"><i class="fas fa-comments"></i> Chat</a></li>
+                <li><a href="@Url.Action("EmployeeNotifications", "Employee")"><i class="fas fa-tasks"></i> Assigned Tasks</a></li>
+                <li><a href="@Url.Action("EmployeeJobs", "Employee")"><i class="fas fa-clipboard-list"></i> Ongoing Jobs</a></li>
+                <li><a href="@Url.Action("EmployeeScanEquipment", "Employee")"><i class="fas fa-barcode"></i> Scan Equipment</a></li>
+                <li><a href="@Url.Action("EmployeeRequestSupplies", "Employee")"><i class="fas fa-box-open"></i> Request Supplies</a></li>
+                <li><a href="@Url.Action("EmployeeJobHistory", "Employee")"><i class="fas fa-history"></i> Job History</a></li>
+                <li><a href="@Url.Action("EmployeeReportIssue", "Employee")"><i class="fas fa-exclamation-triangle"></i> Report Issue</a></li>
+                <li>
+                    <a href="@Url.Action("EmployeeProfile", "Employee")">
+                        <i class="fas fa-user"></i> My Profile
+                    </a>
+                </li>
+                <li><a href="#"><i class="fas fa-star"></i> </a></li>
+            </ul>
+
+        </div>
+
+
+
+
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <div class="card-header">
+                <h2> </h2>
+            </div>
+            <!-- remove-->
+            <h1 style="text-align:center; margin-bottom: 30px; font-size: 2rem; font-weight: bold; color: #0056b3;">
+                Feature in Progress
+            </h1>
+            <!-- remove-->
+        </div>
+
+        <script>
+            const hamburger = document.getElementById("hamburger");
+            const sidebar = document.getElementById("sidebar");
+            const dashboard = document.getElementById("dashboard");
+
+            hamburger.addEventListener("click", function () {
+                sidebar.classList.toggle("open");
+                dashboard.classList.toggle("shifted");
+                hamburger.classList.toggle("active");
+            });
+        </script>
+    </div>
+</body>
+</html>

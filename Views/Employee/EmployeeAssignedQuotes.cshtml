@@ -1,0 +1,1007 @@
+﻿
+@{
+    ViewBag.Title = "EmployeeAssignedQuotes";
+    // Determine logged-in user
+    var userName = Session["EmployeeName"];
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Assigned Tasks - SuperCare Services</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c6fbb;
+            --primary-dark: #1e5596;
+            --secondary: #ff6b6b;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-600: #6c757d;
+            --gray-800: #343a40;
+            --border-radius: 12px;
+            --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--gray-100);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* Navbar */
+        .navbar {
+            width: 100%;
+            height: 70px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 25px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1001;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+
+            .navbar .brand {
+                font-weight: bold;
+                font-size: 20px;
+                display: flex;
+                align-items: center;
+            }
+
+                .navbar .brand i {
+                    margin-right: 12px;
+                    font-size: 22px;
+                    color: #ffd166;
+                }
+
+        .menu-toggle {
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: block;
+            margin-right: 15px;
+            color: white;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 500;
+        }
+
+            .user-section .logout-btn {
+                background: white;
+                color: var(--primary);
+                padding: 8px 16px;
+                border-radius: var(--border-radius);
+                font-weight: 600;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                transition: var(--transition);
+            }
+
+                .user-section .logout-btn:hover {
+                    background: #f0f0f0;
+                    transform: translateY(-2px);
+                }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: -280px;
+            top: 70px;
+            overflow-y: auto;
+            transition: var(--transition);
+            z-index: 1000;
+            padding: 25px 0;
+            box-shadow: var(--box-shadow);
+        }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+        .sidebar-header {
+            padding: 0 25px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            margin-bottom: 20px;
+        }
+
+            .sidebar-header h3 {
+                font-weight: 600;
+                font-size: 1.3rem;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0 15px;
+        }
+
+            .sidebar-menu li {
+                margin-bottom: 8px;
+            }
+
+            .sidebar-menu a {
+                display: flex;
+                align-items: center;
+                padding: 14px 18px;
+                color: rgba(255,255,255,0.9);
+                text-decoration: none;
+                border-radius: var(--border-radius);
+                font-weight: 500;
+                margin-bottom: 5px;
+                transition: var(--transition);
+            }
+
+                .sidebar-menu a:hover {
+                    background-color: rgba(255,255,255,0.12);
+                    color: white;
+                    transform: translateX(5px);
+                }
+
+                .sidebar-menu a i {
+                    margin-right: 15px;
+                    width: 20px;
+                    text-align: center;
+                    font-size: 1.1rem;
+                }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 0;
+            padding: 30px;
+            margin-top: 70px;
+            transition: margin-left 0.3s ease;
+        }
+
+            .main-content.shift {
+                margin-left: 280px;
+            }
+
+        /* Dashboard Cards / Call Out Card */
+        .dashboard-card, .callout-card {
+            background: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            transition: var(--transition);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+            .dashboard-card:hover, .callout-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+            .card-header h2 {
+                font-size: 1.6rem;
+                color: var(--primary);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+        /* Form Groups */
+        .form-group label {
+            font-weight: 600;
+            color: var(--dark);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+            .form-group input:focus,
+            .form-group select:focus,
+            .form-group textarea:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 2px rgba(44,111,187,0.2);
+            }
+
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--primary);
+            color: #fff;
+            border-radius: var(--border-radius);
+            padding: 12px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+        }
+
+            .btn-primary:hover {
+                background-color: var(--primary-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+            }
+
+        /* Price Summary */
+        .price-summary h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .price-summary .form-group input {
+            background: var(--gray-100);
+            border-radius: var(--border-radius);
+            padding: 10px 15px;
+            font-weight: 500;
+        }
+
+        /* Map Container */
+        .map-container {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Status Badges */
+        .status-pending {
+            background-color: var(--warning);
+            color: #212529;
+        }
+
+        .status-in-progress {
+            background-color: var(--info);
+            color: #fff;
+        }
+
+        .status-completed {
+            background-color: var(--success);
+            color: #fff;
+        }
+
+        .status-rejected {
+            background-color: var(--danger);
+            color: #fff;
+        }
+
+        .status-pending, .status-in-progress, .status-completed, .status-rejected {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* Animations */
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @@media (max-width: 992px) {
+            .sidebar {
+                left: -280px;
+                width: 260px;
+            }
+
+                .sidebar.open {
+                    left: 0;
+                }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+                .main-content.shift {
+                    margin-left: 260px;
+                }
+        }
+
+        @@media (max-width: 768px) {
+            .main-content {
+                padding: 20px 15px;
+            }
+        }
+
+        /* Task Cards */
+        .task-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .task-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            transition: var(--transition);
+            border-left: 5px solid var(--primary);
+            position: relative;
+        }
+
+            .task-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            }
+
+            .task-card.pending {
+                border-left-color: var(--warning);
+            }
+
+            .task-card.in-progress {
+                border-left-color: var(--info);
+            }
+
+            .task-card.completed {
+                border-left-color: var(--success);
+            }
+
+            .task-card.rejected {
+                border-left-color: var(--danger);
+            }
+
+        .task-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+      
+
+        .task-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+            padding-right: 100px;
+        }
+
+        .task-details {
+            margin-bottom: 20px;
+        }
+
+        .task-detail {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: flex-start;
+        }
+
+            .task-detail i {
+                margin-right: 12px;
+                color: var(--primary);
+                margin-top: 4px;
+                min-width: 16px;
+            }
+
+            .task-detail .label {
+                font-weight: 600;
+                margin-right: 8px;
+                min-width: 100px;
+            }
+
+        .task-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .task-btn {
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+            .task-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+
+        .btn-accept {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-reject {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-details {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray-600);
+        }
+
+        .modal-header {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+            .modal-header h2 {
+                font-size: 1.5rem;
+                color: var(--dark);
+            }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 600;
+            }
+
+            .form-group textarea {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid var(--gray-300);
+                border-radius: var(--border-radius);
+                resize: vertical;
+                min-height: 120px;
+            }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background-color: white;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+            .filter-btn.active, .filter-btn:hover {
+                background-color: var(--primary);
+                color: white;
+                border-color: var(--primary);
+            }
+
+        /* No tasks message */
+        .no-tasks {
+            text-align: center;
+            padding: 40px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+            .no-tasks i {
+                font-size: 3rem;
+                color: var(--gray-300);
+                margin-bottom: 20px;
+            }
+
+            .no-tasks h3 {
+                font-size: 1.5rem;
+                margin-bottom: 10px;
+                color: var(--gray-600);
+            }
+
+            .no-tasks p {
+                color: var(--gray-600);
+            }
+
+       
+        @@media (max-width: 768px) {
+            .main-content {
+                padding: 20px 15px;
+            }
+
+            .task-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar .brand span {
+                display: none;
+            }
+
+            .navbar .brand i {
+                margin-right: 0;
+                font-size: 26px;
+            }
+
+            .filter-section {
+                flex-direction: column;
+            }
+        }
+
+        .badge {
+            background-color: red;
+            color: white;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 50%;
+            margin-left: 6px;
+            vertical-align: middle;
+            display: inline-block;
+            min-width: 20px;
+            text-align: center;
+        }
+    
+
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navbar -->
+        <div class="navbar">
+            <div style="display:flex; align-items:center;">
+                <div class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <div class="brand"><i class="fas fa-spa"></i><span>SuperCare Services</span></div>
+            </div>
+            <div class="user-section">
+                <span>Welcome @userName!</span>
+                <a href="@Url.Action("Index", "Home")" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-user-tie"></i> Employee Portal</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="@Url.Action("EmployeeClock", "Employee")"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li>
+                    <a href="@Url.Action("EmployeeAssignedQuotes", "Employee")" class="active">
+                        <i class="fas fa-tasks"></i> Assigned Callouts
+                        <span id="assignedBadge" class="badge" style="display:none;">0</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="@Url.Action("EmployeeJobs", "Employee")">
+                        <i class="fas fa-clipboard-list"></i> Ongoing Jobs
+                        <span id="ongoingJobsBadge" class="badge" style="display:none;">0</span>
+                    </a>
+                </li>
+
+                <li><a href="@Url.Action("EmployeeScanEquipment", "Employee")"><i class="fas fa-barcode"></i> Scan Equipment</a></li>
+                <li><a href="@Url.Action("EmployeeJobHistory", "Employee")"><i class="fas fa-history"></i> Job History</a></li>
+                <li>
+                    <a href="@Url.Action("EmployeeProfile", "Employee")">
+                        <i class="fas fa-user"></i> My Profile
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-tasks"></i> My Assigned Callouts</h2>
+                </div>
+
+                <!-- Filter Section -->
+                <div class="filter-section">
+                    <button class="filter-btn active" data-filter="all">All Tasks</button>
+                    <button class="filter-btn" data-filter="in-progress">In Progress</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                    <button class="filter-btn" data-filter="rejected">Rejected</button>
+                </div>
+
+                <!-- Task Cards Container -->
+                <div class="task-cards" id="taskContainer">
+                    <!-- Tasks will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Modal -->
+        <div class="modal" id="feedbackModal">
+            <div class="modal-content">
+                <button class="modal-close" id="closeModal">&times;</button>
+                <div class="modal-header">
+                    <h2>Callout Feedback</h2>
+                </div>
+                <form id="feedbackForm">
+                    <input type="hidden" id="quoteId">
+                    <input type="hidden" id="actionType">
+
+                    <div class="form-group">
+                        <label for="additionalDetails">Additional Details</label>
+                        <textarea id="additionalDetails" placeholder="Please provide any additional details about this callout..."></textarea>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="task-btn btn-reject" id="cancelFeedback">Cancel</button>
+                        <button type="submit" class="task-btn btn-accept">Submit Feedback</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Accept Modal -->
+        <div class="modal" id="acceptModal">
+            <div class="modal-content">
+                <button class="modal-close" id="closeAcceptModal">&times;</button>
+                <div class="modal-header">
+                    <h2>Enter Cleaning Amount</h2>
+                </div>
+                <form id="acceptForm">
+                    <input type="hidden" id="acceptQuoteId">
+
+                    <div class="form-group">
+                        <label for="cleaningAmount">Cleaning Amount (R)</label>
+                        <input type="number" id="cleaningAmount" step="0.01" min="0" placeholder="Enter amount" required>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="task-btn btn-reject" id="cancelAccept">Cancel</button>
+                        <button type="submit" class="task-btn btn-accept">Confirm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+// 🔹 Sidebar & Menu Toggle
+const menuToggle = document.getElementById('menuToggle');
+const sidebar = document.getElementById('sidebar');
+const mainContent = document.getElementById('mainContent');
+
+// Sidebar toggle
+menuToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    mainContent.classList.toggle('shift');
+});
+
+// Auto-close on mobile when clicking outside
+document.addEventListener('click', (event) => {
+    if (window.innerWidth < 992 &&
+        sidebar.classList.contains('open') &&
+        !sidebar.contains(event.target) &&
+        !menuToggle.contains(event.target)) {
+        sidebar.classList.remove('open');
+        mainContent.classList.remove('shift');
+    }
+});
+
+// Auto-close when menu link clicked (mobile)
+sidebar.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+        if (window.innerWidth < 992) {
+            sidebar.classList.remove('open');
+            mainContent.classList.remove('shift');
+        }
+    });
+});
+
+// 🔹 Task Management Script
+const taskContainer = document.getElementById('taskContainer');
+const filterButtons = document.querySelectorAll('.filter-btn');
+const feedbackModal = document.getElementById('feedbackModal');
+const closeModal = document.getElementById('closeModal');
+const cancelFeedback = document.getElementById('cancelFeedback');
+const feedbackForm = document.getElementById('feedbackForm');
+const quoteIdInput = document.getElementById('quoteId');
+const actionTypeInput = document.getElementById('actionType');
+const tasks = @Html.Raw(Json.Encode(Model));
+
+// Convert .NET date -> yyyy-MM-dd
+function formatDotNetDate(dotNetDate) {
+    if (!dotNetDate) return "";
+    const match = dotNetDate.match(/\d+/);
+    if (!match) return "";
+    const timestamp = parseInt(match[0]);
+    const d = new Date(timestamp);
+    return d.getFullYear() + "-" +
+           String(d.getMonth() + 1).padStart(2, '0') + "-" +
+           String(d.getDate()).padStart(2, '0');
+}
+
+// Preprocess tasks to fix date formatting
+tasks.forEach(t => {
+    t.Date = formatDotNetDate(t.Date);
+});
+
+// Handle Accept/Reject button click
+function handleTaskAction(e) {
+    const btn = e.target.closest('.task-btn');
+    if (!btn) return;
+
+    const taskId = btn.dataset.id;
+    const action = btn.dataset.action;
+
+    if (action === 'accept') {
+        document.getElementById('acceptQuoteId').value = taskId;
+        document.getElementById('acceptModal').style.display = 'flex';
+    } else if (action === 'reject') {
+        quoteIdInput.value = taskId;
+        actionTypeInput.value = action;
+        feedbackModal.style.display = 'flex';
+    }
+}
+
+// Accept form submit
+document.getElementById('acceptForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const taskId = document.getElementById('acceptQuoteId').value;
+    const cleaningAmount = parseFloat(document.getElementById('cleaningAmount').value);
+
+    if (isNaN(cleaningAmount) || cleaningAmount <= 0) {
+        alert("Please enter a valid cleaning amount.");
+        return;
+    }
+
+    fetch(`/Employee/AcceptQuote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: taskId, cleaningAmount })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        const task = tasks.find(t => t.Id == taskId);
+        if (task) {
+            task.Status = 'completed';
+            task.CleaningAmount = cleaningAmount;
+        }
+        document.getElementById('acceptModal').style.display = 'none';
+        renderTasks(document.querySelector('.filter-btn.active').dataset.filter);
+    });
+});
+
+// Reject form submit
+feedbackForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const taskId = quoteIdInput.value;
+    const feedback = document.getElementById('additionalDetails').value.trim();
+
+    if (!feedback) {
+        alert("Feedback is required to reject a task.");
+        return;
+    }
+
+    fetch(`/Employee/RejectQuote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: taskId, feedback })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        const task = tasks.find(t => t.Id == taskId);
+        if (task) {
+            task.Status = 'rejected';
+            task.Feedback = feedback;
+        }
+        feedbackModal.style.display = 'none';
+        renderTasks(document.querySelector('.filter-btn.active').dataset.filter);
+    });
+});
+
+// Close modals
+closeModal.addEventListener('click', () => feedbackModal.style.display = 'none');
+cancelFeedback.addEventListener('click', () => feedbackModal.style.display = 'none');
+document.getElementById('closeAcceptModal').addEventListener('click', () => document.getElementById('acceptModal').style.display = 'none');
+document.getElementById('cancelAccept').addEventListener('click', () => document.getElementById('acceptModal').style.display = 'none');
+window.addEventListener('click', (e) => {
+    if (e.target === feedbackModal) feedbackModal.style.display = 'none';
+});
+
+// Filter buttons
+filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        filterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderTasks(btn.dataset.filter);
+    });
+});
+
+// Render tasks
+function renderTasks(filter = 'all') {
+    taskContainer.innerHTML = '';
+
+    const filteredTasks = tasks.filter(task => {
+        const status = (task.Status || 'pending').toLowerCase();
+        const f = filter.toLowerCase();
+
+        if (f === 'all') return ['in progress', 'completed', 'rejected'].includes(status);
+        if (f === 'in-progress') return status === 'in progress';
+        if (f === 'completed') return status === 'completed';
+        if (f === 'rejected') return status === 'rejected';
+        return false;
+    });
+
+    filteredTasks.forEach(task => {
+        const card = document.createElement('div');
+        card.className = 'task-card';
+
+        const feedbackHTML = task.Status === 'rejected' ? `<p><strong>Feedback:</strong> ${task.Feedback || '-'}</p>` : '';
+        const cleaningAmountHTML = task.CleaningAmount ? `<p><strong>Cleaning Amount:</strong> R${task.CleaningAmount.toFixed(2)}</p>` : '';
+        const actionButtons = (task.Status !== 'completed' && task.Status !== 'rejected')
+            ? `<button class="task-btn btn-accept" data-id="${task.Id}" data-action="accept">Accept</button>
+               <button class="task-btn btn-reject" data-id="${task.Id}" data-action="reject">Reject</button>` : '';
+
+        let statusClass = '';
+        switch (task.Status) {
+            case 'rejected': statusClass = 'status-rejected'; break;
+            case 'completed': statusClass = 'status-completed'; break;
+            case 'in progress': statusClass = 'status-in-progress'; break;
+            case 'pending': statusClass = 'status-pending'; break;
+        }
+
+        card.innerHTML = `
+            <h3>${task.Title}</h3>
+            <p><strong>Client:</strong> ${task.Client}</p>
+            <p><strong>Service:</strong> ${task.Service}</p>
+            <p><strong>Date:</strong> ${task.Date}</p>
+            <p><strong>Status:</strong> <span class="${statusClass}">${task.Status}</span></p>
+            <p><strong>Address:</strong> ${task.Address}</p>
+            <p><strong>Description:</strong> ${task.Description}</p>
+            <p><strong>Callout Amount:</strong> R${task.QuoteAmount.toFixed(2)}</p>
+            ${cleaningAmountHTML}
+            ${feedbackHTML}
+            <div class="task-actions">${actionButtons}</div>
+        `;
+
+        taskContainer.appendChild(card);
+    });
+
+    // Re-add event listeners
+    document.querySelectorAll('.task-btn').forEach(btn => btn.addEventListener('click', handleTaskAction));
+}
+
+// Initial render
+document.addEventListener('DOMContentLoaded', () => {
+    renderTasks();
+});
+
+        fetch('/Employee/GetEmployeePendingCount')
+            .then(res => res.json())
+            .then(count => {
+                const badge = document.getElementById('assignedBadge');
+                if (count > 0) {
+                    badge.textContent = count;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            })
+        // Fetch ongoing jobs count
+        fetch('/Employee/GetEmployeeOngoingJobsCount')
+            .then(res => res.json())
+            .then(count => {
+                const badge = document.getElementById('ongoingJobsBadge');
+                if (count > 0) {
+                    badge.textContent = count;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            });
+
+    </script>
+
+
+
+</body>
+</html>
